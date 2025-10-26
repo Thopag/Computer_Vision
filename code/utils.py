@@ -16,17 +16,21 @@ def detect_color(image, color, tuning=25):
         _type_: _description_
         
     """
-    
+    lower_s = 50
+    lower_v = 50
+    upper_s = 255
+    upper_v = 255
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     color = np.uint8([[color]])
     
     hsv_color = cv2.cvtColor(color, cv2.COLOR_RGB2HSV)
     h, s, v = cv2.split(hsv_color)
     H = h[0][0]
+    print("Hue value of the target color:", H)
     lower_h = max(H - tuning, 0)
     upper_h = min(H + tuning, 179)
-    lower = np.array([lower_h, 100, 100])
-    upper = np.array([upper_h, 255, 255])
+    lower = np.array([lower_h, lower_s, lower_v])
+    upper = np.array([upper_h, upper_s, upper_v])
     
     mask = cv2.inRange(hsv, lower, upper)
     return mask
