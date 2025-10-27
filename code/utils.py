@@ -2,24 +2,38 @@ import cv2
 import numpy as np
 import json 
 
+def time_to_seconds(time_str):
+    """Convert 'HH:MM:SS' to seconds."""
+    h, m, s = map(int, time_str.split(":"))
+    return h * 3600 + m * 60 + s
 
-def detect_color(image, color, tuning=25):
+
+def time_to_hms(seconds):
+    """Convert seconds to 'HH:MM:SS'."""
+    seconds = int(round(seconds))
+    h = seconds // 3600
+    m = (seconds % 3600) // 60
+    s = int(round(seconds % 60))
+    return f"{h:02}:{m:02}:{s:02}"
+
+def detect_color(image, color ,lower,upper, tuning=25):
     """
     Detect a specific color in an image and create a mask.
 
     Args:
-        image (_type_): and input image in BGR format
-        color (_type_): a list RGB color like [255,0,0]
+        image (np.array) : and input image in BGR format
+        color (tuple): a list RGB color like [255,0,0]
+        lower,upper (tuple) :  lower and upper value of s & v in hsv format
         tuning (int, optional):tuning parameter. Defaults to 25.
 
     Returns:
-        _type_: _description_
+        (np.array): mask corresponding to the detected color
         
     """
-    lower_s = 50
-    lower_v = 50
-    upper_s = 255
-    upper_v = 255
+    lower_s = lower[0]
+    lower_v = lower[1]
+    upper_s = upper[0]
+    upper_v = upper[1]
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     color = np.uint8([[color]])
     
@@ -35,21 +49,63 @@ def detect_color(image, color, tuning=25):
     mask = cv2.inRange(hsv, lower, upper)
     return mask
 
-def change_color(image, orig_rgb, target_rgb, tuning=25):
+def change_color_mask(image, orig_rgb, target_rgb, mask):
     """
     Change a specific color in an image to a target color.
 
     Args:
-        image (_type_): _description_
-        orig_rgb (_type_): origin color in RGB format like [255,0,0]
-        target_rgb (_type_): target color in RGB format like [0,255,0]
-        tuning (int, optional): _description_. Defaults to 25.
-
+        image (np.array):  and input image in BGR format 
+        orig_rgb (tuple): origin color in RGB format like [255,0,0]
+        target_rgb (tuple): target color in RGB format like [0,255,0]
+        mask (np.array) :  The mask to be used to change the color
     Returns:
-        _type_: image with the color changed in BGR format
+        (np.array): image with the color changed in BGR format
         """
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    mask = detect_color(image, orig_rgb, tuning)
+    orig_hsv = cv2.cvtColor(np.uint8([[orig_rgb]]), cv2.COLOR_RGB2HSV)[0][0]
+    target_hsv = cv2.cvtColor(np.uint8([[target_rgb]]), cv2.COLOR_RGB2HSV)[0][0]
+
+    delta_h = (int(target_hsv[0]) - int(orig_hsv[0])) % 180
+    if delta_h > 90:
+        delta_h -= 180
+
+    delta_s = int(target_hsv[1]) - int(orig_hsv[1])
+    delta_v = int(target_hsv[2]) - int(orig_hsv[2])
+    
+    h, s, v = cv2.split(hsv)
+    h = np.mod(h.astype(np.int16) + delta_h, 180).astype(np.uint8)
+    s = np.clip(s.astype(np.int16) + delta_s, 0, 255).astype(np.uint8)
+    v = np.clip(v.astype(np.int16) + delta_v, 0, 255).astype(np.uint8)
+
+    
+    hsv_shifted = cv2.merge([h, s, v])
+    bgr_shifted = cv2.cvtColor(hsv_shifted, cv2.COLOR_HSV2BGR)
+    
+    result = cv2.bitwise_or(
+        cv2.bitwise_and(image, image, mask=cv2.bitwise_not(mask)),
+        cv2.bitwise_and(bgr_shifted, bgr_shifted, mask=mask)
+    )
+    print("HELLO FROM NEW COLOR CHANGE !!!!!!!!!")
+    print("the color change worked successfully ")
+    
+    return result
+
+def change_color(image, orig_rgb, target_rgb, lower, upper, tuning=25):
+    """
+    Change a specific color in an image to a target color.
+
+    Args:
+        image (np.array):  and input image in BGR format 
+        orig_rgb (tuple): origin color in RGB format like [255,0,0]
+        target_rgb (tuple): target color in RGB format like [0,255,0]
+        lower,upper (tuple) :  lower and upper value of s & v in hsv format
+        tuning (int, optional): parameter that allow modifying the hue value, Defaults to 25.
+
+    Returns:
+        (np.array): image with the color changed in BGR format
+        """
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    mask = detect_color(image, orig_rgb, lower,upper, tuning)
     
     orig_hsv = cv2.cvtColor(np.uint8([[orig_rgb]]), cv2.COLOR_RGB2HSV)[0][0]
     target_hsv = cv2.cvtColor(np.uint8([[target_rgb]]), cv2.COLOR_RGB2HSV)[0][0]
@@ -74,10 +130,36 @@ def change_color(image, orig_rgb, target_rgb, tuning=25):
         cv2.bitwise_and(image, image, mask=cv2.bitwise_not(mask)),
         cv2.bitwise_and(bgr_shifted, bgr_shifted, mask=mask)
     )
+    print("the color change worked successfully ")
     
     return result
 
-   
+def load_json(json_path , fixed , trick_id):
+    
+    """load json start time based on the trick_id
+       fixed  : a boolean  , TRUE = FIXED VIDEO , FALSE = DYNAMIC
+       trick_id :  1,2,3 
+
+    Raises:
+        FileNotFoundError
+
+    Returns:
+        (string): start time of the needed trick in HH:MM:SS format
+    """
+
+    try :
+        with open(json_path, "r") as f:
+            data = json.load(f)
+        print("JSON file loaded successfully.")
+        if fixed :
+            return data["video_fixed"]["illusions"][trick_id-1]["start_time"]
+        else : 
+            return data["video_dynamic"]["illusions"][trick_id-1]["start_time"]
+        
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {json_path}")
+ 
+
 def apply_function_to_video(in_path, out_path, func):
     """take an input path  an output path and a function to apply to each frame
        source : code from TP1 
@@ -111,47 +193,6 @@ def apply_function_to_video(in_path, out_path, func):
     cap.release()
     writer.release()
     print("Saved:", out_path)
-
-
-def load_json(json_path , fixed , trick_id):
-    
-    """load json start time based on the trick_id
-       fixed  : a boolean 
-       trick_id :  1,2,3 
-
-    Raises:
-        FileNotFoundError
-
-    Returns:
-        _type_: start time of the needed trick in HH:MM:SS format
-    """
-
-    try :
-        with open(json_path, "r") as f:
-            data = json.load(f)
-        print("JSON file loaded successfully.")
-        if fixed :
-            return data["video_fixed"]["illusions"][trick_id-1]["start_time"]
-        else : 
-            return data["video_dynamic"]["illusions"][trick_id-1]["start_time"]
-        
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {json_path}")
- 
-
-def time_to_seconds(time_str):
-    """Convert 'HH:MM:SS' to seconds."""
-    h, m, s = map(int, time_str.split(":"))
-    return h * 3600 + m * 60 + s
-
-
-def time_to_hms(seconds):
-    """Convert seconds to 'HH:MM:SS'."""
-    seconds = int(round(seconds))
-    h = seconds // 3600
-    m = (seconds % 3600) // 60
-    s = int(round(seconds % 60))
-    return f"{h:02}:{m:02}:{s:02}"
 
 
 def process(path, func1,func2,func3):
