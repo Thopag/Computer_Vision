@@ -268,6 +268,7 @@ def process(path, func1,func2,func3):
     
 def roi(img  , RGB ,lower,upper,s_erod , s_dil):
     """
+    # could add directly the mask as input
     Create a region of interest mask based
     
     s_erod: size for erosion
