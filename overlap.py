@@ -22,7 +22,7 @@ def get_overlap_componant(mask1, mask2):
         return False, None
     
     overlap_label = overlap_labels[0]
-    only_1_label = np.all(overlap_label == overlap_label)
+    only_1_label = np.all(overlap_labels == overlap_label)
 
     if only_1_label:
         componant_pixels = labels == overlap_label
