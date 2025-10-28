@@ -1,12 +1,12 @@
 import cv2
 import numpy as np
+import matplotlib.pyplot as plt
 import json 
 
 def time_to_seconds(time_str):
     """Convert 'HH:MM:SS' to seconds."""
     h, m, s = map(int, time_str.split(":"))
     return h * 3600 + m * 60 + s
-
 
 def time_to_hms(seconds):
     """Convert seconds to 'HH:MM:SS'."""
@@ -16,6 +16,31 @@ def time_to_hms(seconds):
     s = int(round(seconds % 60))
     return f"{h:02}:{m:02}:{s:02}"
 
+def load_json(json_path , fixed , trick_id):
+    
+    """load json start time based on the trick_id
+       fixed  : a boolean  , TRUE = FIXED VIDEO , FALSE = DYNAMIC
+       trick_id :  1,2,3 
+
+    Raises:
+        FileNotFoundError
+
+    Returns:
+        (string): start time of the needed trick in HH:MM:SS format
+    """
+
+    try :
+        with open(json_path, "r") as f:
+            data = json.load(f)
+        print("JSON file loaded successfully.")
+        if fixed :
+            return data["video_fixed"]["illusions"][trick_id-1]["start_time"]
+        else : 
+            return data["video_dynamic"]["illusions"][trick_id-1]["start_time"]
+        
+    except FileNotFoundError:
+        raise FileNotFoundError(f"File not found: {json_path}")
+ 
 def detect_color(image, color ,lower,upper, tuning=25):
     """
     Detect a specific color in an image and create a mask.
@@ -51,7 +76,7 @@ def detect_color(image, color ,lower,upper, tuning=25):
 
 def change_color_mask(image, orig_rgb, target_rgb, mask):
     """
-    Change a specific color in an image to a target color.
+    Change a specific color in an image to a target color based on the mask given as input.
 
     Args:
         image (np.array):  and input image in BGR format 
@@ -85,14 +110,15 @@ def change_color_mask(image, orig_rgb, target_rgb, mask):
         cv2.bitwise_and(image, image, mask=cv2.bitwise_not(mask)),
         cv2.bitwise_and(bgr_shifted, bgr_shifted, mask=mask)
     )
-    print("HELLO FROM NEW COLOR CHANGE !!!!!!!!!")
+    print ("the original color is :" , orig_rgb)
+    print ("the target  color is :" , target_rgb)
     print("the color change worked successfully ")
     
     return result
 
 def change_color(image, orig_rgb, target_rgb, lower, upper, tuning=25):
     """
-    Change a specific color in an image to a target color.
+    Change a specific color in an image to a target color. (OLD FUNCTION)
 
     Args:
         image (np.array):  and input image in BGR format 
@@ -134,35 +160,10 @@ def change_color(image, orig_rgb, target_rgb, lower, upper, tuning=25):
     
     return result
 
-def load_json(json_path , fixed , trick_id):
-    
-    """load json start time based on the trick_id
-       fixed  : a boolean  , TRUE = FIXED VIDEO , FALSE = DYNAMIC
-       trick_id :  1,2,3 
-
-    Raises:
-        FileNotFoundError
-
-    Returns:
-        (string): start time of the needed trick in HH:MM:SS format
-    """
-
-    try :
-        with open(json_path, "r") as f:
-            data = json.load(f)
-        print("JSON file loaded successfully.")
-        if fixed :
-            return data["video_fixed"]["illusions"][trick_id-1]["start_time"]
-        else : 
-            return data["video_dynamic"]["illusions"][trick_id-1]["start_time"]
-        
-    except FileNotFoundError:
-        raise FileNotFoundError(f"File not found: {json_path}")
- 
-
 def apply_function_to_video(in_path, out_path, func):
-    """take an input path  an output path and a function to apply to each frame
-       source : code from TP1 
+    """
+    take an input path  an output path and a function to apply to each frame
+    source : code from TP1 
 
     Args:
         func :a function that applies to a frame and returns the processed frame
@@ -194,16 +195,16 @@ def apply_function_to_video(in_path, out_path, func):
     writer.release()
     print("Saved:", out_path)
 
-
 def process(path, func1,func2,func3):
-    """take a video as input and apply the corresponding function
-       to each trick based on the annotations in the json file.
-       for example func1 to trick 1
-       etc.
-       source : code from TP1 
+    """
+    take a video as input and apply the corresponding function
+    to each trick based on the annotations in the json file.
+    for example func1 to trick 1
+    etc.
+    source : code from TP1 
 
     Args:
-        funci :a function that applies to a frame and returns the processed frame
+        func_i :a function that applies to a frame and returns the processed frame
         path (dict) : dictionary that contains the input video path, output video path and json path
     Raises:
         IOError: 
@@ -265,3 +266,34 @@ def process(path, func1,func2,func3):
     print("trick 2 processing from  ",time_to_hms(start_frame2/fps),"to", time_to_hms(start_frame3/fps))
     print("trick 3 processing from " ,time_to_hms(start_frame3/fps) ,"to end")
     
+def roi(img  , RGB ,lower,upper,s_erod , s_dil):
+    """
+    Create a region of interest mask based
+    
+    s_erod: size for erosion
+    s_dil: size for dilation
+    img : input image
+    RGB : color to detect
+    
+    return 
+        image of BGR format 
+    """
+    
+    mask = detect_color(img,RGB,lower,upper,tuning = 25)
+    # we erode first to remove noise (small white regions detected by mistake)
+    kernel_erod = (s_erod , s_erod)
+    SE= cv2.getStructuringElement(cv2.MORPH_RECT,kernel_erod)
+    eroded_mask = cv2.erode(mask,SE)
+    
+    #then we dilate to get the full region of interest around the detected object
+    
+    kernel_dil = (s_dil , s_dil)
+    SE= cv2.getStructuringElement(cv2.MORPH_RECT,kernel_dil)
+    
+    roi_mask = cv2.dilate(eroded_mask,SE)
+    
+    new_image = cv2.bitwise_and(img , img , mask = roi_mask)
+    
+    #for visualization
+    plt.imshow(cv2.cvtColor(new_image, cv2.COLOR_BGR2RGB))
+    return [new_image, roi_mask]
