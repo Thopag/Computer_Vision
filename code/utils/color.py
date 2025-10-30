@@ -26,7 +26,6 @@ def detect_color(image, color ,lower,upper, tuning=25):
     hsv_color = cv2.cvtColor(color, cv2.COLOR_RGB2HSV)
     h, s, v = cv2.split(hsv_color)
     H = h[0][0]
-    print("Hue value of the target color:", H)
     lower_h = max(H - tuning, 0)
     upper_h = min(H + tuning, 179)
     lower = np.array([lower_h, lower_s, lower_v])
