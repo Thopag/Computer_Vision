@@ -31,7 +31,7 @@ def get_overlap_componant(cover_mask, covered_mask):
         overlap_componant_mask[componant_pixels] = 255
 
         return True, overlap_componant_mask
-    
+
     return False, labels
 
 def roi(mask, s_erod, s_dil):
@@ -59,5 +59,6 @@ def roi(mask, s_erod, s_dil):
     
     roi_mask = cv2.dilate(eroded_mask,SE)
     # Change here
+    ok = not np.all(roi_mask == 0)
 
-    return roi_mask
+    return ok, roi_mask
