@@ -1,44 +1,15 @@
-from utils import * 
+from code.utils.ROI import roi
 import cv2 as cv
-data_dict = dict()
-data_dict["RGB"] = [0,0,255]  # the color to be detected
-data_dict["lower"]=[100,100]  # lower s, lower v to be used to detect the color in hsv format
-data_dict["upper"] =[255,255] # upper s, upper v to be used to detect the color in hsv format
-data_dict["s_erod"] = 10      # to be used to reduce noise with erosion
-data_dict["s_dil"]  = 20      # used to smooth contour of mask after an erosion 
-data_dict["threshold"] = 50   # in pixel, used to determine if a color is detected correctly 
 
-
-def do_trick2_1obj(img ,data_dict ):
-   
-    # GET data from dictionnary 
-    RGB = data_dict["RGB"]
-    lower = data_dict["lower"]
-    upper =data_dict["upper"]
-    s_erod = data_dict["s_erod"]
-    s_dil = data_dict["s_dil"]
-    threshold =data_dict["threshold"]
-    
+def do_trick2_1obj(img , mask ):
+       
     #INIT
     result = img # at start
     status = False  # False =  no change were applied 
-    # START
-    # first detect the color given in RGB then apply some filtering 
-    
-    mask = detect_color(img,RGB,lower,upper, tuning = 25)
-    SE= cv.getStructuringElement(cv.MORPH_ELLIPSE,(s_erod,s_erod))
-    eroded_mask = cv.erode(mask,SE)
-    SE= cv.getStructuringElement(cv.MORPH_ELLIPSE,(s_dil,s_dil))
-    dilated_mask_object = cv.dilate(eroded_mask,SE)
-    
     #Then compute a Region Of interest around the needed object 
     
-    out= roi(img , RGB ,lower,upper, s_erod=10 , s_dil=200)
+    out= roi(mask , s_erod=10 , s_dil=200)
     new_image, roi_mask  = out[0] , out[1]
-    
-    
-    # Now new image contain the ROI around the object
-    
 
     # we want to detect the red wand 
     
@@ -53,7 +24,6 @@ def do_trick2_1obj(img ,data_dict ):
     eroded_mask_red = cv.erode(mask_red,SE)
     SE= cv.getStructuringElement(cv.MORPH_ELLIPSE,(s_dil,s_dil))
     dilated_mask_red= cv.dilate(eroded_mask_red,SE)
-    
     
     # now we count how much white pixel we have on the new mask 
     n_pixel = np.shape(np.where(dilated_mask_red == 255))[1]
