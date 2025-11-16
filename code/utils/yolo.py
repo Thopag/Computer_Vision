@@ -2,7 +2,8 @@ import cv2
 import numpy as np
 from ultralytics import YOLO
 
-def detect_objects(frame , model):
+model = YOLO('yolov8n.pt')  # Load the model ONCE
+def detect_objects(frame):
     """
     Detect objects in an image using YOLOv8 and convert boxes to masks.
     
@@ -17,7 +18,7 @@ def detect_objects(frame , model):
     image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     # Perform detection
-    results = model(image_rgb)[0]
+    results = model(image_rgb , verbose= False)[0]
 
     masks = []
     labels = []
