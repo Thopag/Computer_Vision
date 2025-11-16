@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import matplotlib.pyplot as plt
 
 def detect_color(image, color ,lower,upper, tuning=25):
     """
@@ -70,52 +69,4 @@ def change_color_mask(image, orig_rgb, target_rgb, mask):
         cv2.bitwise_and(image, image, mask=cv2.bitwise_not(mask)),
         cv2.bitwise_and(bgr_shifted, bgr_shifted, mask=mask)
     )
-    print ("the original color is :" , orig_rgb)
-    print ("the target  color is :" , target_rgb)
-    print("the color change worked successfully ")
-    
-    return result
-
-def change_color(image, orig_rgb, target_rgb, lower, upper, tuning=25):
-    """
-    Change a specific color in an image to a target color. (OLD FUNCTION)
-
-    Args:
-        image (np.array):  and input image in BGR format 
-        orig_rgb (tuple): origin color in RGB format like [255,0,0]
-        target_rgb (tuple): target color in RGB format like [0,255,0]
-        lower,upper (tuple) :  lower and upper value of s & v in hsv format
-        tuning (int, optional): parameter that allow modifying the hue value, Defaults to 25.
-
-    Returns:
-        (np.array): image with the color changed in BGR format
-        """
-    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    mask = detect_color(image, orig_rgb, lower,upper, tuning)
-    
-    orig_hsv = cv2.cvtColor(np.uint8([[orig_rgb]]), cv2.COLOR_RGB2HSV)[0][0]
-    target_hsv = cv2.cvtColor(np.uint8([[target_rgb]]), cv2.COLOR_RGB2HSV)[0][0]
-
-    delta_h = (int(target_hsv[0]) - int(orig_hsv[0])) % 180
-    if delta_h > 90:
-        delta_h -= 180
-
-    delta_s = int(target_hsv[1]) - int(orig_hsv[1])
-    delta_v = int(target_hsv[2]) - int(orig_hsv[2])
-    
-    h, s, v = cv2.split(hsv)
-    h = np.mod(h.astype(np.int16) + delta_h, 180).astype(np.uint8)
-    s = np.clip(s.astype(np.int16) + delta_s, 0, 255).astype(np.uint8)
-    v = np.clip(v.astype(np.int16) + delta_v, 0, 255).astype(np.uint8)
-
-    
-    hsv_shifted = cv2.merge([h, s, v])
-    bgr_shifted = cv2.cvtColor(hsv_shifted, cv2.COLOR_HSV2BGR)
-    
-    result = cv2.bitwise_or(
-        cv2.bitwise_and(image, image, mask=cv2.bitwise_not(mask)),
-        cv2.bitwise_and(bgr_shifted, bgr_shifted, mask=mask)
-    )
-    print("the color change worked successfully ")
-    
     return result

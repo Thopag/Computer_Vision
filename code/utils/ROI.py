@@ -73,7 +73,7 @@ def roi(mask, s_erod, s_dil):
     s_erod: size for erosion
     s_dil: size for dilation
     mask : input mask
-
+    
     return 
         mask of format 
     """
@@ -82,104 +82,12 @@ def roi(mask, s_erod, s_dil):
     kernel_erod = (s_erod , s_erod)
     SE= cv2.getStructuringElement(cv2.MORPH_RECT,kernel_erod)
     eroded_mask = cv2.erode(mask,SE)
-
+    
     #then we dilate to get the full region of interest around the detected object
-
+    
     kernel_dil = (s_dil , s_dil)
     SE= cv2.getStructuringElement(cv2.MORPH_RECT,kernel_dil)
-
+    
     roi_mask = cv2.dilate(eroded_mask,SE)
-    # Change here
-    ok = not np.all(roi_mask == 0)
 
-    return ok, roi_mask
-
-def detect_objects(frame, confidence_threshold=0):
-    """
-    Detect objects in an image using YOLOv8 and convert boxes to masks.
-
-    Args:
-        frame: BGR image (numpy array)
-
-    Returns:
-        masks: list of uint8 masks (1 inside box, 0 outside)
-        labels: list of class names corresponding to each mask
-    """
-    # Load YOLO model
-    #model = YOLO('yolov8n.pt')
-
-    # Convert image to RGB
-    image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    # Perform detection
-    results = model(image_rgb, verbose=False)[0]
-
-    masks = []
-    labels = []
-
-    H, W = frame.shape[:2]
-    class_names = results.names
-
-    # Process detections
-    boxes = results.boxes
-    for box in boxes:
-        conf = float(box.conf[0])
-        if conf < confidence_threshold:
-            continue
-    
-        # Box coordinates
-        x1, y1, x2, y2 = map(int, box.xyxy[0])
-
-        # Create mask for this object
-        mask = np.zeros((H, W), dtype=np.uint8)
-        cv2.rectangle(mask, (x1, y1), (x2, y2), color=1, thickness=-1)
-        masks.append(mask)
-
-        # Get class label
-        class_id = int(box.cls[0])
-        class_name = class_names[class_id]
-        labels.append(class_name)
-
-    return masks, labels
-
-def annotate_frame(frame, confidence_threshold=0.0, file=None):
-    """
-    Detect objects on a single frame and draw bounding boxes.
-
-    Args:
-        frame (np.ndarray): Input image/frame in BGR format
-        confidence_threshold (float): Minimum confidence to draw box
-
-    Returns:
-        np.ndarray: Annotated frame with bounding boxes
-    """
-    # YOLO expects RGB
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    
-    # Perform detection
-    results = model(rgb_frame)[0]
-    boxes = results.boxes
-    class_names = results.names
-
-    # Make a copy to draw on
-    annotated_frame = frame.copy()
-
-    # Draw boxes
-    for box in boxes:
-        conf = float(box.conf[0])
-        if conf < confidence_threshold:
-            continue
-        class_id = int(box.cls[0])
-        x1, y1, x2, y2 = map(int, box.xyxy[0])
-        color = colors[class_id % len(colors)].tolist()
-        cv2.rectangle(annotated_frame, (x1, y1), (x2, y2), color, 2)
-        cv2.putText(annotated_frame, f"{class_names[class_id]} {conf:.2f}", 
-                    (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-
-        if file:
-            file.write(f"[{class_names[class_id]}: {conf:.2f}], " )
-
-    if file:
-        file.write(f"\n" )
-
-    return annotated_frame
+    return roi_mask
