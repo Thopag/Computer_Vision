@@ -57,7 +57,5 @@ def roi(mask, s_erod, s_dil):
     SE= cv2.getStructuringElement(cv2.MORPH_RECT,kernel_dil)
     
     roi_mask = cv2.dilate(eroded_mask,SE)
-    # Change here
-    ok = not np.all(roi_mask == 0)
 
-    return ok, roi_mask
+    return roi_mask

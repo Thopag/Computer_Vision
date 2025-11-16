@@ -1,62 +1,146 @@
-from code.utils.ROI import roi
-import cv2 as cv
+# This file contains the definition of the trick2 function 
+import cv2
+import numpy as np 
+from utils.yolo import detect_objects
+from utils.color import detect_color, change_color_mask
+from utils.ROI import roi
+from utils.geometry import grow_object
+def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter , model):
+    switch = 0
+    overlap_prev = False
+    frame_idx = 0
 
-def do_trick2_1obj(img , mask ):
-       
-    #INIT
-    result = img # at start
-    status = False  # False =  no change were applied 
-    #Then compute a Region Of interest around the needed object 
-    
-    out= roi(mask , s_erod=10 , s_dil=200)
-    new_image, roi_mask  = out[0] , out[1]
+    last_masks = []
+    last_labels = []
 
-    # we want to detect the red wand 
+    bottle_mask = None
+    to_remove = ["person", "dining table", "sports ball","orange", "handbag","keyboard" ]
     
-    RGB_red     = [255,0,10] #  # those parameter are tested and work correctly but could be adapted 
-    lower_red   = [50 , 50]
-    upper_red   = [255,255]
-    # detect red color
-    mask_red   = detect_color(new_image,RGB_red,lower_red,upper_red, tuning = 25) 
-    
-    #some filtering again on the red mask
-    SE= cv.getStructuringElement(cv.MORPH_RECT,(s_erod,s_erod))
-    eroded_mask_red = cv.erode(mask_red,SE)
-    SE= cv.getStructuringElement(cv.MORPH_ELLIPSE,(s_dil,s_dil))
-    dilated_mask_red= cv.dilate(eroded_mask_red,SE)
-    
-    # now we count how much white pixel we have on the new mask 
-    n_pixel = np.shape(np.where(dilated_mask_red == 255))[1]
-    #print("detect pixel = " , n_pixel)
-    #print("threshold" , threshold)
-    
-    if n_pixel < threshold  :
-        print("there is NOT enough pixel to consider  the wand as detected so we do not change the color")
-        return result  , status
-    
-    # if we are here it means that we detected the wand 
-    
-    print("there is  enough pixel to consider the wand  as detected to apply the trick 2")
+    # Labels you want to detect
+    target_labels = ["bottle", "cell_phone"]
 
-    
-    # now we start the changing color process
-     
-    orig_rgb   = RGB
-    target_rgb = [200,5,6] # to be changed !!!!!!
-    
-    img_test = change_color_mask(new_image,orig_rgb, target_rgb , dilated_mask_object)
-    print("img_test have a shape of ",np.shape(img_test))
-    
-    # here we inverse the roi mask to keep in the original image the unprocessed part
-    mask_inv = cv.bitwise_not(roi_mask)
-    img_not_processed = cv.bitwise_and(img,img, mask=mask_inv)
-    
-    if not np.shape(img_not_processed)== np.shape(img_test):
-        print("There is something wrong with the shape of img_not_processed and img_test")
-        return result , status
-    
-    # If everything is ok , we combine the processed and unprocessed part and return the result + a true status 
-    combined = cv2.add(img_test, img_not_processed)
-    status = True
-    print(" the combination of the processed and unprocessed part work successfully")
-    return combined  , status 
+
+    while True:
+        ok, frame = cap.read()
+        if not ok:
+            break
+
+        output = frame
+        #-------------------------------
+        # Color Detection (Red) WAND
+        #-------------------------------
+        mask_red  = detect_color(frame, [255,0,5], [55,55],[255,255], tuning=25)
+        roi_red  = roi(mask_red, 3, 20)
+        #-------------------------------
+        # color detection Blue  ball 
+        #------------------------------- 
+        mask_blue = detect_color(frame, [0,0,255], [100,100],[255,255], tuning=25)
+        roi_blue = roi(mask_blue, 10, 20)
+        #-------------------------------
+        # Object Detection and Filtering
+        #-------------------------------
+        if frame_idx % 10 == 0:
+            last_masks, last_labels = detect_objects(frame , model )
+            filtered_masks  = []
+            filtered_labels = []
+            for mask, label in zip(last_masks, last_labels):
+                if label not in to_remove:
+                    filtered_masks.append(mask)
+                    filtered_labels.append(label)
+
+            last_masks  = filtered_masks
+            last_labels = filtered_labels
+        # -------------------------------
+        # Draw bounding boxes for each object
+        # -------------------------------
+        
+        if not (last_masks == []):
+            for mask, label in zip(last_masks, last_labels):
+
+                ys, xs = np.where(mask > 0)
+                if len(xs) > 0:
+                    x_min, x_max = xs.min(), xs.max()
+                    y_min, y_max = ys.min(), ys.max()
+
+                    cv2.rectangle(output,
+                                  (x_min, y_min),
+                                  (x_max, y_max),
+                                  (0, 255, 0),
+                                  2)
+                    cv2.putText(output, str(label),
+                                (x_min, y_min - 10),
+                                cv2.FONT_HERSHEY_SIMPLEX,
+                                0.7, (0, 255, 0), 2)
+
+        # -------------------------------
+        # wand logic here
+        # -------------------------------
+        # first add blue ball masks
+        last_masks.append(roi_blue)
+        last_labels.append("blue ball")
+        global_overlap = np.zeros_like(roi_red, dtype=np.uint8)
+
+        for mask in last_masks:
+                overlap = cv2.bitwise_and(mask, roi_red)
+                global_overlap = cv2.bitwise_or(global_overlap, overlap)
+        
+        overlap_pixels = np.count_nonzero(global_overlap)
+
+        # ----- STABLE EVENT DETECTION -----
+        overlap_now = overlap_pixels > 30   # threshold
+
+        if overlap_now and not overlap_prev:
+            # A NEW overlap event occurred here
+            switch += 1
+
+        overlap_prev = overlap_now
+
+        # ----- STATE LOGIC -----
+        state = switch >= 1    # state becomes True after first switch
+        
+        #------------------------
+        # trick logic 
+        #-----------------------
+        
+        mask_blue = roi(mask_blue, 10, 15)
+        if switch == 1:
+            output = change_color_mask(frame, [0,0,255],[255,0,0] , mask_blue)
+        elif switch ==2 :
+            output = change_color_mask(frame, [0,0,255],[0,255,0] , mask_blue)
+        elif switch == 3 :
+            output = frame 
+        elif switch == 4:
+            # Default: no object found
+            target_index = -2
+            # Find the FIRST matching label in the list
+            for i, lab in enumerate(last_labels):
+                if lab in target_labels:
+                    target_index = i
+                    break
+
+            # If object found
+            if target_index != -2:
+                object_mask = last_masks[target_index]
+                output = grow_object(frame, object_mask, scale=3.0)
+            else:
+                # No bottle or cellphone found → keep frame unchanged
+                #print("No bottle/cell_phone detected in this frame.")
+                output = frame
+                
+        else : #switch == 5:
+            output = frame
+            
+        
+
+        # ----- Debug -----
+        cv2.putText(output, f"Overlap: {overlap_pixels}",
+                    (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,255),2)
+        cv2.putText(output, f"Switch: {switch}",
+                    (50,90), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,0),2)
+        cv2.putText(output,f"State: {state}",
+                    (50,130), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,0),2)
+
+        writer.write(output)
+        frame_idx += 1
+
+    return 1
