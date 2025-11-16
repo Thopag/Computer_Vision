@@ -42,7 +42,7 @@ def load_json(json_path , fixed , trick_id):
         raise FileNotFoundError(f"File not found: {json_path}")
  
 
-def apply_function_to_video(in_path, out_path, func):
+def apply_function_to_video(in_path, out_path, func, file=None, **kwargs):
     """
     take an input path  an output path and a function to apply to each frame
     source : code from TP1 
@@ -64,14 +64,18 @@ def apply_function_to_video(in_path, out_path, func):
     fourcc = cv2.VideoWriter_fourcc(*"mp4v") 
     writer = cv2.VideoWriter(out_path, fourcc, fps, (w, h))
 
+    i = 0
     while True:
         ok, frame_bgr = cap.read()
         if not ok:
             break
 
+        if file:
+            file.write(f"\nAt {i/fps:.3f} s (frame {i})\n")
         
-        output = func(frame_bgr)
+        output = func(frame_bgr, file=file, **kwargs)
         writer.write(output)
+        i += 1
 
     cap.release()
     writer.release()
