@@ -5,7 +5,7 @@ from utils.yolo import detect_objects
 from utils.color import detect_color, change_color_mask
 from utils.ROI import roi
 from utils.geometry import grow_object
-def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter , model):
+def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter , nb_frame , to_remove ,read_every_x_frame):
     switch = 0
     overlap_prev = False
     frame_idx = 0
@@ -14,13 +14,12 @@ def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter , model):
     last_labels = []
 
     bottle_mask = None
-    to_remove = ["person", "dining table", "sports ball","orange", "handbag","keyboard" ]
     
     # Labels you want to detect
     target_labels = ["bottle", "cell_phone"]
 
 
-    while True:
+    while True and frame_idx < nb_frame:
         ok, frame = cap.read()
         if not ok:
             break
@@ -39,8 +38,8 @@ def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter , model):
         #-------------------------------
         # Object Detection and Filtering
         #-------------------------------
-        if frame_idx % 10 == 0:
-            last_masks, last_labels = detect_objects(frame , model )
+        if frame_idx % read_every_x_frame == 0:
+            last_masks, last_labels = detect_objects(frame)
             filtered_masks  = []
             filtered_labels = []
             for mask, label in zip(last_masks, last_labels):
