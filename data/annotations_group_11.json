@@ -1,0 +1,42 @@
+{
+  "video_fixed": {
+    "video_name": "group_11_fixed.mp4",
+    "illusions": [
+      {
+        "trick_id": 1,
+        "name": "Vanishing cloak",
+        "start_time": "00:00:05"
+      },
+      {
+        "trick_id": 2,
+        "name": "Color-changing and growing spells",
+        "start_time": "00:01:14"
+      },
+      {
+        "trick_id": 3,
+        "name": "Telekinetic trick",
+        "start_time": "00:02:00"
+      }
+    ]
+  },
+  "video_dynamic": {
+    "video_name": "group_11_dynamic.mp4",
+    "illusions": [
+      {
+        "trick_id": 1,
+        "name": "Vanishing cloak",
+        "start_time": "00:00:02"
+      },
+      {
+        "trick_id": 2,
+        "name": "Color-changing and growing spells",
+        "start_time": "00:00:47"
+      },
+      {
+        "trick_id": 3,
+        "name": "Telekinetic trick",
+        "start_time": "00:01:22"
+      }
+    ]
+  }
+}

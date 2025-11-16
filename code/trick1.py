@@ -2,9 +2,10 @@ import cv2
 import numpy as np
 
 from utils.color import detect_color
-from utils.ROI import get_overlap_componant, detect_objects, is_some_overlap
+from utils.ROI import get_overlap_componant, is_some_overlap
+from utils.yolo import detect_objects
 
-def trick1(writer, cap, nbr_frame, blacklist=[], with_first_frame=False):
+def trick1(writer, cap, nb_frame, blacklist=[], with_first_frame=False, file=None):
     """
     Writer the next nbr_frame in the cap, with thhe trick 1.
     Blacklist are the detected object that should be ignored.
@@ -12,6 +13,8 @@ def trick1(writer, cap, nbr_frame, blacklist=[], with_first_frame=False):
     writer : writer of the output video
     cap : the cap of the video
     """
+
+    file.write(f"Start trick 1 \n")
 
     fps = cap.get(cv2.CAP_PROP_FPS)
     w   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -37,13 +40,14 @@ def trick1(writer, cap, nbr_frame, blacklist=[], with_first_frame=False):
     kernel_er = (s_erode , s_erode)
     SE_object = cv2.getStructuringElement(cv2.MORPH_RECT,kernel_er)
 
-    for i in range(nbr_frame):
+    for frame_idx in range(nb_frame):
 
         ok, frame_bgr = cap.read()
         if not ok:
             break
 
-        print(f"Trick 1 progress: {(i)/(nbr_frame) *100:.2f} %. Memorised labels {memorised_labels}", end="\r")
+        print(f"Trick 1 progress: {(frame_idx)/(nb_frame) *100:.2f} %. Memorised labels {memorised_labels}", end="\r")
+        file.write(f"Trick 1 progress: {(frame_idx)/(nb_frame) *100:.2f} %. Memorised labels {memorised_labels} \n")
 
         # Get the green mask
         green = [0,255,0]
@@ -132,6 +136,7 @@ def trick1(writer, cap, nbr_frame, blacklist=[], with_first_frame=False):
         writer.write(output_frame)
         writer_memory.write(memory_frame)
 
+    file.write(f"End trick 1 \n")
     writer_memory.release()
 
     return

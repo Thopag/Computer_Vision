@@ -5,25 +5,28 @@ from utils.yolo import detect_objects
 from utils.color import detect_color, change_color_mask
 from utils.ROI import roi
 from utils.geometry import grow_object
-def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter , model):
+
+def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter , nb_frame , to_remove ,read_every_x_frame, file=None):
     switch = 0
     overlap_prev = False
-    frame_idx = 0
 
     last_masks = []
     last_labels = []
 
     bottle_mask = None
-    to_remove = ["person", "dining table", "sports ball","orange", "handbag","keyboard" ]
+
+    file.write(f"Start trick 2 \n")
     
     # Labels you want to detect
     target_labels = ["bottle", "cell_phone"]
 
-
-    while True:
+    for frame_idx in range(nb_frame):
         ok, frame = cap.read()
         if not ok:
             break
+
+        print(f"Trick 2 progress: {(frame_idx)/(nb_frame) *100:.2f} %", end="\r")
+        file.write(f"Trick 2 progress: {(frame_idx)/(nb_frame) *100:.2f} %\n")
 
         output = frame
         #-------------------------------
@@ -39,8 +42,8 @@ def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter , model):
         #-------------------------------
         # Object Detection and Filtering
         #-------------------------------
-        if frame_idx % 10 == 0:
-            last_masks, last_labels = detect_objects(frame , model )
+        if frame_idx % read_every_x_frame == 0:
+            last_masks, last_labels = detect_objects(frame)
             filtered_masks  = []
             filtered_labels = []
             for mask, label in zip(last_masks, last_labels):
@@ -129,8 +132,6 @@ def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter , model):
                 
         else : #switch == 5:
             output = frame
-            
-        
 
         # ----- Debug -----
         cv2.putText(output, f"Overlap: {overlap_pixels}",
@@ -141,6 +142,7 @@ def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter , model):
                     (50,130), cv2.FONT_HERSHEY_SIMPLEX, 1,(0,255,0),2)
 
         writer.write(output)
-        frame_idx += 1
+    
+    file.write(f"End trick 2 \n")
 
     return 1
