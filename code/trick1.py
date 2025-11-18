@@ -12,9 +12,13 @@ def trick1(writer, cap, nb_frame, blacklist=[], with_first_frame=False, file=Non
 
     writer : writer of the output video
     cap : the cap of the video
+    with_first_frame : Set to True to create the invisibility with the first frame
+    file : file used as logger.txt
     """
 
     file.write(f"Start trick 1 \n")
+    file.write(f"With first frame = {with_first_frame} \n")
+    file.write(f"blacklist : {blacklist} \n")
 
     fps = cap.get(cv2.CAP_PROP_FPS)
     w   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
@@ -39,6 +43,7 @@ def trick1(writer, cap, nb_frame, blacklist=[], with_first_frame=False, file=Non
     s_erode = 17
     kernel_er = (s_erode , s_erode)
     SE_object = cv2.getStructuringElement(cv2.MORPH_RECT,kernel_er)
+    file.write(f"Constante s_erosion for kernels = {s_erode} \n")
 
     for frame_idx in range(nb_frame):
 
@@ -47,7 +52,7 @@ def trick1(writer, cap, nb_frame, blacklist=[], with_first_frame=False, file=Non
             break
 
         print(f"Trick 1 progress: {(frame_idx)/(nb_frame) *100:.2f} %. Memorised labels {memorised_labels}", end="\r")
-        file.write(f"Trick 1 progress: {(frame_idx)/(nb_frame) *100:.2f} %. Memorised labels {memorised_labels} \n")
+        file.write(f"\nTrick 1 progress: {(frame_idx)/(nb_frame) *100:.2f} %. Memorised labels {memorised_labels} \n")
 
         # Get the green mask
         green = [0,255,0]
@@ -57,30 +62,34 @@ def trick1(writer, cap, nb_frame, blacklist=[], with_first_frame=False, file=Non
         is_overlapping = False
 
         mask_objects, labels = detect_objects(frame_bgr)
+        file.write(f"Detected labels: {labels} \n")
 
         # Update memory loop
         for label, mask_object in zip(labels, mask_objects):
 
             if label not in blacklist:
 
+                file.write(f"Label {label} ")
                 in_memory = False
                 for i in range(len(memorised_objects)):
 
                     # Verif if the current object is already in the memory and if yes, update it
                     # We consider it is the same object if at least 1 pixel overlap, to take account of mouvement
                     if is_some_overlap(memorised_objects[i], mask_object):
+                        file.write(f"replace {memorised_labels[i]} the {i} object \n")
                         memorised_labels[i] = label
                         memorised_objects[i] = mask_object
                         memorised_kernels[i] = cv2.erode(mask_object, SE_object)
                         in_memory = True
 
                 if not in_memory:
+                    file.write(f"is a new label\n")
                     memorised_labels.append(label)
                     memorised_objects.append(mask_object)
                     memorised_kernels.append(cv2.erode(mask_object, SE_object))
 
         # Search overlapping loop
-        for memorised_kernel in memorised_kernels:
+        for i, memorised_kernel in enumerate(memorised_kernels):
 
             # Check if overlap
             overlapping, overlap_mask = get_overlap_componant(green_mask, memorised_kernel)
@@ -89,6 +98,7 @@ def trick1(writer, cap, nb_frame, blacklist=[], with_first_frame=False, file=Non
             if overlapping:
                 cloak_mask = cv2.add(cloak_mask, overlap_mask)
                 is_overlapping = True
+                file.write(f"Overlapping with the {i} object\n")
 
         # ---- create last frame ---- #
 
@@ -111,6 +121,7 @@ def trick1(writer, cap, nb_frame, blacklist=[], with_first_frame=False, file=Non
                 output_frame = cv2.inpaint(visible_environment, cloak_mask, 3, cv2.INPAINT_TELEA)
         else:
             output_frame = frame_bgr
+            file.write(f"No overlapping\n")
 
         # Write the for the memory video
         if len(memorised_objects):
