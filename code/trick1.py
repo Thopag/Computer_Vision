@@ -53,7 +53,7 @@ def trick1(writer, cap, nb_frame, blacklist=[], with_first_frame=False, read_eve
             break
 
         print(f"Trick 1 progress: {(frame_idx)/(nb_frame) *100:.2f} %. Memorised labels {memorised_labels}", end="\r")
-        file.write(f"\n   Trick 1 progress at {frame_idx/fps:.3f} s ({(frame_idx)/(nb_frame) *100:.2f} %)\n")
+        file.write(f"\n   Trick 1 at {frame_idx/fps:.3f} s ({(frame_idx)/(nb_frame) *100:.2f} %)\n")
         file.write(f"Memorised labels {memorised_labels} \n")
 
         # Get the green mask

@@ -24,7 +24,7 @@ def detect_objects(frame, confidence_threshold=0.0):
     image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
     # Perform detection
-    results = model(image_rgb , verbose= False)[0]
+    results = model(image_rgb, verbose= False)[0]
 
     masks = []
     labels = []
@@ -53,7 +53,7 @@ def detect_objects(frame, confidence_threshold=0.0):
 
     return masks, labels
 
-def annotate_frame(in_path, out_path=None, confidence_threshold=0.0):
+def annotate_video(in_path, out_path=None, confidence_threshold=0.0):
     """
     Detect objects on a single frame and draw bounding boxes.
 
@@ -67,44 +67,73 @@ def annotate_frame(in_path, out_path=None, confidence_threshold=0.0):
 
     cap = cv2.VideoCapture(in_path)
     if not out_path:
-        file_name = os.path.basename(in_path)
+        file_name = os.path.basename(in_path)[:-4]
         out_path = f"../yolo_output/{file_name}.mp4"
 
     txt_path = out_path[:-4] + ".txt"
 
     f = open(txt_path, "w", encoding="utf-8")
 
-    #------------General set up------------#
+    f.write(f"Start yolo predictions \n")
+    f.write(f"input path : {in_path} \n")
+    f.write(f"output path : {out_path} \n")
+    f.write(f"confidence_threshold = {confidence_threshold} \n\n")
+
+    #------------Set up------------#
 
     if not cap.isOpened():
         raise IOError(f"Could not open {in_path}")
     fps = cap.get(cv2.CAP_PROP_FPS)
     w   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     h   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     fourcc = cv2.VideoWriter_fourcc(*"mp4v") 
     writer = cv2.VideoWriter(out_path, fourcc, fps, (w, h))
 
-    # YOLO expects RGB
-    rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    seen_labels = []
 
-    # Perform detection
-    results = model(rgb_frame)[0]
-    boxes = results.boxes
-    class_names = results.names
+    for frame_idx in range(total_frames):
 
-    # Make a copy to draw on
-    annotated_frame = frame.copy()
+        ok, frame = cap.read()
+        if not ok:
+            break
+        
+        print(f"Progress: {(frame_idx)/(total_frames) *100:.2f} %", end="\r")
+        f.write(f"\n  Video at {frame_idx/fps:.3f} s ({(frame_idx)/(total_frames) *100:.2f} %)\n")
+        # YOLO expects RGB
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    # Draw boxes
-    for box in boxes:
-        conf = float(box.conf[0])
-        if conf < confidence_threshold:
-            continue
-        class_id = int(box.cls[0])
-        x1, y1, x2, y2 = map(int, box.xyxy[0])
-        color = colors[class_id % len(colors)].tolist()
-        cv2.rectangle(annotated_frame, (x1, y1), (x2, y2), color, 2)
-        cv2.putText(annotated_frame, f"{class_names[class_id]} {conf:.2f}", 
-                    (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+        # Perform detection
+        results = model(rgb_frame, verbose= False)[0]
+        boxes = results.boxes
+        class_names = results.names
+
+        # Make a copy to draw on
+        annotated_frame = frame.copy()
+
+        # Draw boxes
+        for box in boxes:
+            conf = float(box.conf[0])
+            if conf < confidence_threshold:
+                continue
+            class_id = int(box.cls[0])
+            x1, y1, x2, y2 = map(int, box.xyxy[0])
+            color = colors[class_id % len(colors)].tolist()
+            cv2.rectangle(annotated_frame, (x1, y1), (x2, y2), color, 2)
+
+            label = class_names[class_id]
+            cv2.putText(annotated_frame, f"{label} {conf:.2f}", 
+                        (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+            f.write(f" Find [{label}] with confidence [{conf:.2f}]\n")
+            
+            if label not in seen_labels:
+                seen_labels.append(label)
+
+        writer.write(annotated_frame)
     
-    return annotated_frame
+    f.write(f" All seen labels {seen_labels}\n")
+    cap.release()
+    writer.release()
+    f.close()
+    
+    return out_path

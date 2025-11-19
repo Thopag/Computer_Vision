@@ -43,8 +43,9 @@ def main() :
 
     blacklist = ['cakeress', 'dining table', 'person', 'cell phone', 'remote', 'handbag', 'cake', 'frisbee', 'cup', 'tie', 'skateboard']
     with_first_frame = False
+    read_every_x_frame = 5
 
-    trick1(writer, cap, nbr_trick1, blacklist=blacklist, with_first_frame=with_first_frame, read_every_x_frame=5, file=f)
+    trick1(writer, cap, nbr_trick1, blacklist, with_first_frame, read_every_x_frame, file=f)
 
     end_1 = time.time()
     #------------Trick2------------#
