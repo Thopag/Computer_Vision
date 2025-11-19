@@ -25,16 +25,16 @@ def load_json(json_path , fixed , trick_id):
     except FileNotFoundError:
         raise FileNotFoundError(f"File not found: {json_path}")
  
-def get_number_of_frames(cap, json_path):
+def get_number_of_frames(cap, json_path, fixed):
 
     fps = cap.get(cv2.CAP_PROP_FPS)
 
     # in second
     start_trick1 = 0
-    tmp= load_json(json_path , True , 2)
+    tmp= load_json(json_path , fixed , 2)
     start_trick2 =time_to_seconds(tmp)
     end_trick1 = start_trick2
-    tmp =load_json(json_path , True , 3)
+    tmp =load_json(json_path , fixed , 3)
     end_trick2 = time_to_seconds(tmp)
     start_trick3 = end_trick2
     

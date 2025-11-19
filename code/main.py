@@ -12,11 +12,12 @@ from utils.video import get_number_of_frames
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 #------------------------------------------------
-in_path  = "../input/group_11_fixed.mp4"
-out_path = "../output/main_group_11_fixed.mp4"
+in_path  = "../input/group_11_dynamic.mp4"
+out_path = "../output/main_group_11_dynamic.mp4"
 txt_path = out_path[:-4] + ".txt"
 
 json_path = "../input/annotations_group_11.json"
+fixed = False
 
 def main() :
     start_main = time.time()
@@ -35,7 +36,7 @@ def main() :
     writer = cv2.VideoWriter(out_path, fourcc, fps, (w, h))
 
     start = time.time()
-    nbr_trick1, nbr_trick2, nbr_trick3 = get_number_of_frames(cap, json_path)
+    nbr_trick1, nbr_trick2, nbr_trick3 = get_number_of_frames(cap, json_path, fixed)
     
     #------------Trick1------------#
     start_1 = time.time()
