@@ -12,11 +12,11 @@ from utils.video import get_number_of_frames
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 #------------------------------------------------
-in_path  = "../data/Video1fixed.mp4"
-out_path = "../output/all.mp4"
+in_path  = "../input/group_11_fixed.mp4"
+out_path = "../output/main_group_11_fixed.mp4"
 txt_path = out_path[:-4] + ".txt"
 
-json_path = "../data/annotations_group_11.json"
+json_path = "../input/annotations_group_11.json"
 
 def main() :
     start_main = time.time()
@@ -43,7 +43,7 @@ def main() :
     blacklist = ['cakeress', 'dining table', 'person', 'cell phone', 'remote', 'handbag', 'cake', 'frisbee', 'cup', 'tie', 'skateboard']
     with_first_frame = False
 
-    trick1(writer, cap, nbr_trick1, blacklist=blacklist, with_first_frame=with_first_frame, file=f)
+    trick1(writer, cap, nbr_trick1, blacklist=blacklist, with_first_frame=with_first_frame, read_every_x_frame=5, file=f)
 
     end_1 = time.time()
     #------------Trick2------------#
@@ -53,7 +53,7 @@ def main() :
                     "orange", "handbag","keyboard" ]
     read_every_x_frame = 10
     
-    trick2(cap, writer ,nbr_trick2, to_remove ,read_every_x_frame, file=f)
+    trick2(cap, writer, nbr_trick2, to_remove, read_every_x_frame, file=f)
 
     end_2 = time.time()
     #------------Trick3------------#
