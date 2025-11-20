@@ -53,7 +53,7 @@ def detect_objects(frame, confidence_threshold=0.0):
 
     return masks, labels
 
-def annotate_video(in_path, out_path=None, confidence_threshold=0.0):
+def annotate_video(in_path, read_every_x_frame=2, out_path=None, confidence_threshold=0.0):
     """
     Detect objects on a single frame and draw bounding boxes.
 
@@ -77,6 +77,7 @@ def annotate_video(in_path, out_path=None, confidence_threshold=0.0):
     f.write(f"Start yolo predictions \n")
     f.write(f"input path : {in_path} \n")
     f.write(f"output path : {out_path} \n")
+    f.write(f"prediction every {read_every_x_frame} frames \n")
     f.write(f"confidence_threshold = {confidence_threshold} \n\n")
 
     #------------Set up------------#
@@ -99,17 +100,21 @@ def annotate_video(in_path, out_path=None, confidence_threshold=0.0):
             break
         
         print(f"Progress: {(frame_idx)/(total_frames) *100:.2f} %", end="\r")
-        f.write(f"\n  Video at {frame_idx/fps:.3f} s ({(frame_idx)/(total_frames) *100:.2f} %)\n")
-        # YOLO expects RGB
-        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-        # Perform detection
-        results = model(rgb_frame, verbose= False)[0]
-        boxes = results.boxes
-        class_names = results.names
 
         # Make a copy to draw on
         annotated_frame = frame.copy()
+
+        if frame_idx % read_every_x_frame == 0:
+
+            f.write(f"\n  Video at {frame_idx/fps:.3f} s ({(frame_idx)/(total_frames) *100:.2f} %)\n")
+
+            # YOLO expects RGB
+            rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+            # Perform detection
+            results = model(rgb_frame, verbose= False)[0]
+            boxes = results.boxes
+            class_names = results.names
 
         # Draw boxes
         for box in boxes:
@@ -124,10 +129,12 @@ def annotate_video(in_path, out_path=None, confidence_threshold=0.0):
             label = class_names[class_id]
             cv2.putText(annotated_frame, f"{label} {conf:.2f}", 
                         (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
-            f.write(f" Find [{label}] with confidence [{conf:.2f}]\n")
             
-            if label not in seen_labels:
-                seen_labels.append(label)
+            if frame_idx % read_every_x_frame == 0:
+                f.write(f" Find [{label}] with confidence [{conf:.2f}]\n")
+                
+                if label not in seen_labels:
+                    seen_labels.append(label)
 
         writer.write(annotated_frame)
     
