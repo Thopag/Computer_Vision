@@ -131,7 +131,7 @@ def annotate_video(in_path, read_every_x_frame=2, out_path=None, confidence_thre
                         (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
             
             if frame_idx % read_every_x_frame == 0:
-                f.write(f" Find [{label}] with confidence [{conf:.2f}]\n")
+                f.write(f"Find [{label}] with confidence [{conf:.2f}]\n")
                 
                 if label not in seen_labels:
                     seen_labels.append(label)
