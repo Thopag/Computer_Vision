@@ -12,11 +12,11 @@ from utils.video import get_number_of_frames
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 #------------------------------------------------
-in_path  = "../data/Video1fixed.mp4"
-out_path = "../output/all.mp4"
+in_path  = "../input/group_11_fixed.mp4"
+out_path = "../output/test_trick_1_2.mp4"
 txt_path = out_path[:-4] + ".txt"
 
-json_path = "../data/annotations_group_11.json"
+json_path = "../input/annotations_group_11.json"
 
 def main() :
     start_main = time.time()
@@ -39,7 +39,7 @@ def main() :
     
     #------------Trick1------------#
     start_1 = time.time()
-
+    
     blacklist = ['cakeress', 'dining table', 'person', 'cell phone', 'remote', 'handbag', 'cake', 'frisbee', 'cup', 'tie', 'skateboard']
     with_first_frame = False
 
