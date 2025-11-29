@@ -1,46 +1,101 @@
+# ===========================================================
+# TRICK2 — FINAL VERSION WITH
+# - BALL COLOR CHANGE
+# - BOTTLE CONTOUR GROW + SHRINK
+# - MUSHROOM FADE OUT + FADE IN (FIRST 2 TOUCH BLOCKS ONLY)
+# ===========================================================
 import cv2
 import numpy as np
-import time
-from utils.color import detect_color, change_color_mask
+
+from utils.color import change_color_mask
 from utils.ROI import roi
-from utils.geometry import grow_object
+from utils.geometry import (
+    grow_object,
+    grow_object_magic,
+    fade_object_magic,        # Already implemented in geometry.py
+    find_contour_from_bbox    # Used inside grow/fade
+)
 
-
-# ============================================================
-# LOAD TRACKING LOG
-# ============================================================
-def load_file(txt_path):
-    tracks = {}
-    with open(txt_path, "r") as f:
-        next(f)  # skip header
-
+# ===========================================================
+# LOAD ready.txt
+# ===========================================================
+def load_ready(path):
+    data = {}
+    with open(path, "r") as f:
+        next(f)
         for line in f:
             frame, tid, cx, cy, w, h = line.strip().split(",")
             frame = int(frame)
-            tid = int(tid)
+            tid   = int(tid)
             cx, cy, w, h = map(float, (cx, cy, w, h))
 
-            if frame not in tracks:
-                tracks[frame] = []
+            if frame not in data:
+                data[frame] = []
 
-            tracks[frame].append({
+            data[frame].append({
                 "id": tid,
                 "cx": cx,
                 "cy": cy,
                 "w": w,
                 "h": h
             })
-    return tracks
+    return data
 
 
-# Load tracking file
-tracks = load_file("../output/trick2_log.txt")
+# ===========================================================
+# LOAD interactions.txt
+# ===========================================================
+def load_interactions(path):
+
+    ball_frames = []
+    bottle_frames = []
+    mushroom_frames = []
+
+    with open(path, "r") as f:
+        next(f)
+        for line in f:
+            if ":" not in line:
+                continue
+            frame, txt = line.strip().split(":")
+            frame = int(frame)
+            txt = txt.lower()
+
+            if "ball" in txt:
+                ball_frames.append(frame)
+            elif "bottle" in txt:
+                bottle_frames.append(frame)
+            elif "mushroom" in txt:
+                mushroom_frames.append(frame)
+
+    return {
+        "ball": sorted(ball_frames),
+        "bottle": sorted(bottle_frames),
+        "mushroom": sorted(mushroom_frames)
+    }
 
 
-# ============================================================
-# UTILITY: Convert cx,cy,w,h → mask
-# ============================================================
-def mask_from_log(frame, cx, cy, w, h):
+# ===========================================================
+# GROUP consecutive frames into blocks
+# ===========================================================
+def group_blocks(frames):
+    if not frames:
+        return []
+    blocks = []
+    curr = [frames[0]]
+    for f in frames[1:]:
+        if f == curr[-1] + 1:
+            curr.append(f)
+        else:
+            blocks.append(curr)
+            curr = [f]
+    blocks.append(curr)
+    return blocks
+
+
+# ===========================================================
+# SIMPLE BOX MASK
+# ===========================================================
+def box_to_mask(frame, cx, cy, w, h):
     H, W = frame.shape[:2]
     x1 = int(cx - w/2)
     y1 = int(cy - h/2)
@@ -57,193 +112,185 @@ def mask_from_log(frame, cx, cy, w, h):
     return mask
 
 
-# ============================================================
-# MAIN TRICK2 FUNCTION
-# ============================================================
-def trick2(cap, writer, nb_frame, file=None):
+# ===========================================================
+# MAIN TRICK2
+# ===========================================================
+def trick2(
+    cap,
+    writer,
+    nb_frame,
+    ready_path,
+    interaction_path,
+    file=None
+):
 
     file.write("Start trick2\n")
-    start_time = time.time()
 
-    # First tracked frame
-    first_tracked_frame = min(tracks.keys())
+    ready = load_ready(ready_path)
+    inter = load_interactions(interaction_path)
 
-    # Touch counters
-    ball_touches = 0
-    bottle_touches = 0
-    mushroom_touches = 0
+    # Blocks
+    ball_blocks     = group_blocks(inter["ball"])
+    bottle_blocks   = group_blocks(inter["bottle"])
+    mushroom_blocks = group_blocks(inter["mushroom"])
 
-    # Rising edge memory
-    prev_ball = False
-    prev_bottle = False
-    prev_mushroom = False
+    ball_count     = 0
+    bottle_count   = 0
+    mushroom_count = 0
 
-    # Reference masks for growing
-    bottle_mask_ref = None
-    mushroom_mask_ref = None
+    def is_start_of_block(frame, blocks):
+        for blk in blocks:
+            if frame == blk[0]:
+                return True
+        return False
 
-    TOUCH_THRESHOLD = 30
+    # --------------------------------------------------------
+    # BOTTLE intervals
+    # --------------------------------------------------------
+    if len(bottle_blocks) >= 1:
+        bottle_grow_start = bottle_blocks[0][-1]
+    else:
+        bottle_grow_start = None
 
+    if len(bottle_blocks) >= 2:
+        bottle_grow_end = bottle_blocks[1][0]
+    else:
+        bottle_grow_end = None
+
+    if len(bottle_blocks) >= 2:
+        bottle_shrink_start = bottle_blocks[1][0]
+        bottle_shrink_end   = bottle_shrink_start + 40
+    else:
+        bottle_shrink_start = None
+        bottle_shrink_end   = None
+
+    # --------------------------------------------------------
+    # MUSHROOM fade intervals — ONLY first 2 blocks
+    # --------------------------------------------------------
+    if len(mushroom_blocks) >= 2:
+        out_block = mushroom_blocks[0]
+        in_block  = mushroom_blocks[1]
+
+        fade_out_start = out_block[-1]
+        fade_out_end   = in_block[0]
+
+        fade_in_start  = in_block[0]
+        fade_in_end    = in_block[-1]
+    else:
+        fade_out_start = fade_out_end = None
+        fade_in_start  = fade_in_end = None
+
+    # =======================================================
+    # PROCESS FRAMES
+    # =======================================================
     for frame_idx in range(nb_frame):
 
-        # -----------------------------------------------------------
-        # Read next frame
-        # -----------------------------------------------------------
         ok, frame = cap.read()
-        if not ok:
-            break
+        if not ok: break
 
         output = frame.copy()
 
-        # Progress display
-        progress = frame_idx / nb_frame * 100
-        print(f"\rProcessing: {progress:.2f}%", end="")
+        # Load objects
+        wand = ball = bottle = mushroom = None
+        if frame_idx in ready:
+            for obj in ready[frame_idx]:
+                if obj["id"] == 100: wand = obj
+                elif obj["id"] == 2: ball = obj
+                elif obj["id"] == 0: bottle = obj
+                elif obj["id"] == 1: mushroom = obj
 
-        # ===========================================================
-        # SKIP FRAMES BEFORE TRACKING STARTS
-        # ===========================================================
-        if frame_idx < first_tracked_frame:
-            writer.write(output)
-            continue
+        # =======================================================
+        # BALL LOGIC
+        # =======================================================
+        if ball_count < 3 and is_start_of_block(frame_idx, ball_blocks):
+            ball_count += 1
 
-        global_frame = frame_idx  # MATCHES tracking log numbers
+        if ball is not None:
+            ball_mask = box_to_mask(frame, ball["cx"], ball["cy"], ball["w"], ball["h"])
+            if ball_count == 1:
+                output = change_color_mask(output, [0,0,255], [255,0,0], ball_mask)
+            elif ball_count == 2:
+                output = change_color_mask(output, [0,0,255], [0,255,0], ball_mask)
 
-        # ===========================================================
-        # LOAD BOTTLE + MUSHROOM MASKS FROM LOG
-        # ===========================================================
-        bottle_mask = None
-        mushroom_mask = None
+        # =======================================================
+        # BOTTLE GROW + SHRINK
+        # =======================================================
+        if bottle is not None:
 
-        if global_frame in tracks:
-            for obj in tracks[global_frame]:
-                tid = obj["id"]
-                cx, cy, w, h = obj["cx"], obj["cy"], obj["w"], obj["h"]
+            cx, cy, w, h = bottle["cx"], bottle["cy"], bottle["w"], bottle["h"]
 
-                if tid == 0:  # bottle
-                    bottle_mask = mask_from_log(frame, cx, cy, w, h)
-                    if bottle_mask_ref is None:
-                        bottle_mask_ref = bottle_mask.copy()
+            # Grow
+            if bottle_grow_start and bottle_grow_end:
+                if bottle_grow_start <= frame_idx <= bottle_grow_end:
+                    output = grow_object_magic(
+                        output, cx, cy, w, h,
+                        frame_idx,
+                        first_touch=bottle_grow_start,
+                        last_touch=bottle_grow_end,
+                        max_scale=3.0,
+                        feather=9,
+                        blur_amount=3
+                    )
+                    writer.write(output); continue
 
-                if tid == 1:  # mushroom
-                    mushroom_mask = mask_from_log(frame, cx, cy, w, h)
-                    if mushroom_mask_ref is None:
-                        mushroom_mask_ref = mushroom_mask.copy()
+            # Shrink
+            if bottle_shrink_start and bottle_shrink_end:
+                if bottle_shrink_start <= frame_idx <= bottle_shrink_end:
+                    output = grow_object_magic(
+                        output, cx, cy, w, h,
+                        frame_idx,
+                        first_touch=bottle_shrink_end,
+                        last_touch=bottle_shrink_start,
+                        max_scale=3.0,
+                        feather=19,
+                        blur_amount=13
+                    )
+                    writer.write(output); continue
 
-        # ===========================================================
-        # BUILD frame WITHOUT mushroom for wand detection
-        # ===========================================================
-        if mushroom_mask is not None:
-            frame_no_mushroom = frame.copy()
-            frame_no_mushroom[mushroom_mask > 0] = (0, 0, 0)
-        else:
-            frame_no_mushroom = frame
+        # =======================================================
+        # MUSHROOM FADE LOGIC
+        # =======================================================
+        if mushroom is not None:
 
-        # ===========================================================
-        # WAND (RED TIP)
-        # ===========================================================
-        red_mask = detect_color(frame_no_mushroom,
-                                [255, 0, 5],
-                                [55, 55],
-                                [255, 255],
-                                tuning=25)
-        red_mask = roi(red_mask, 3, 15)
+            cx, cy, w, h = mushroom["cx"], mushroom["cy"], mushroom["w"], mushroom["h"]
 
-        # ===========================================================
-        # BALL (BLUE)
-        # ===========================================================
-        ball_mask = detect_color(frame,
-                                 [0, 0, 255],
-                                 [100, 100],
-                                 [255, 255],
-                                 tuning=25)
-        ball_mask = roi(ball_mask, 10, 20)
+            # Fade OUT
+            if fade_out_start and fade_out_end:
+                if fade_out_start <= frame_idx <= fade_out_end:
+                    output = fade_object_magic(
+                        output,
+                        cx, cy, w, h,
+                        frame_idx,
+                        fade_start=fade_out_start,
+                        fade_end=fade_out_end,
+                        fade_in=False,
+                        feather=17,
+                        blur_amount=5
+                    )
 
-        # ===========================================================
-        # DRAW BOUNDING BOXES
-        # ===========================================================
-        def draw_mask_bbox(mask, color, label):
-            ys, xs = np.where(mask > 0)
-            if len(xs) == 0:
-                return
-            x1, x2 = xs.min(), xs.max()
-            y1, y2 = ys.min(), ys.max()
-            cv2.rectangle(output, (x1, y1), (x2, y2), color, 2)
-            cv2.putText(output, label, (x1, y1 - 8),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
-
-        draw_mask_bbox(red_mask, (0, 0, 255), "WAND")
-        draw_mask_bbox(ball_mask, (255, 0, 0), "BALL")
-        if bottle_mask is not None:
-            draw_mask_bbox(bottle_mask, (0, 255, 0), "BOTTLE")
-        if mushroom_mask is not None:
-            draw_mask_bbox(mushroom_mask, (255, 0, 255), "MUSHROOM")
-
-        # ===========================================================
-        # OVERLAP DETECTION (RISING EDGE)
-        # ===========================================================
-
-        # 1) BALL
-        if ball_touches < 3:
-            now = np.count_nonzero(cv2.bitwise_and(red_mask, ball_mask)) > TOUCH_THRESHOLD
-            if now and not prev_ball:
-                ball_touches += 1
-            prev_ball = now
-
-        # 2) BOTTLE
-        elif bottle_touches < 2 and bottle_mask is not None:
-            now = np.count_nonzero(cv2.bitwise_and(red_mask, bottle_mask)) > TOUCH_THRESHOLD
-            if now and not prev_bottle:
-                bottle_touches += 1
-            prev_bottle = now
-
-        # 3) MUSHROOM
-        elif mushroom_touches < 2 and mushroom_mask is not None:
-            now = np.count_nonzero(cv2.bitwise_and(red_mask, mushroom_mask)) > TOUCH_THRESHOLD
-            if now and not prev_mushroom:
-                mushroom_touches += 1
-            prev_mushroom = now
-
-        # ===========================================================
-        # TRICK EFFECTS
-        # ===========================================================
-        # BALL COLOR CHANGE
-        if ball_touches == 1:
-            output = change_color_mask(output, [0,0,255], [255,0,0], ball_mask)
-        elif ball_touches == 2:
-            output = change_color_mask(output, [0,0,255], [0,255,0], ball_mask)
-
-        # BOTTLE GROW
-        if ball_touches >= 3 and bottle_touches < 2 and bottle_mask_ref is not None:
-            output = grow_object(output, bottle_mask_ref, scale=3.0)
-
-        # MUSHROOM GROW
-        if ball_touches >= 3 and bottle_touches >= 2 and mushroom_touches < 2 and mushroom_mask_ref is not None:
-            output = grow_object(output, mushroom_mask_ref, scale=3.0)
-
-        # ===========================================================
-        # TEXT OVERLAY
-        # ===========================================================
-        cv2.putText(output, f"Ball: {ball_touches}/3", (50, 50),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,255,255), 2)
-        cv2.putText(output, f"Bottle: {bottle_touches}/2", (50, 90),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,255,255), 2)
-        cv2.putText(output, f"Mushroom: {mushroom_touches}/2", (50, 130),
-                    cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,255,255), 2)
+            # Fade IN
+            if fade_in_start and fade_in_end:
+                if fade_in_start <= frame_idx <= fade_in_end:
+                    output = fade_object_magic(
+                        output,
+                        cx, cy, w, h,
+                        frame_idx,
+                        fade_start=fade_in_start,
+                        fade_end=fade_in_end,
+                        fade_in=True,
+                        feather=17,
+                        blur_amount=5
+                    )
 
         writer.write(output)
-
-    # END LOOP
-    total = time.time() - start_time
-    print(f"\nDone in {total:.2f} seconds.")
 
     file.write("End trick2\n")
     return 1
 
 
-
-# ============================================================
+# ===========================================================
 # MAIN
-# ============================================================
+# ===========================================================
 def main():
 
     cap = cv2.VideoCapture("../input/dynamic/trick2.mp4")
@@ -252,25 +299,35 @@ def main():
         return
 
     fps = cap.get(cv2.CAP_PROP_FPS)
-    W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    W   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    H   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     nb_frame = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    writer = cv2.VideoWriter("../output/trick2_result.mp4",
-                             cv2.VideoWriter_fourcc(*"mp4v"),
-                             fps, (W, H))
+    writer = cv2.VideoWriter(
+        "../output/trick2_result.mp4",
+        cv2.VideoWriter_fourcc(*"mp4v"),
+        fps, (W, H)
+    )
 
     f = open("../output/trick2_debug.txt", "w")
     f.write("Trick2 start\n")
 
-    trick2(cap, writer, nb_frame, file=f)
+    trick2(
+        cap=cap,
+        writer=writer,
+        nb_frame=nb_frame,
+        ready_path="../output/ready.txt",
+        interaction_path="../output/interactions.txt",
+        file=f
+    )
 
     cap.release()
     writer.release()
     f.close()
 
-    print("🎉 Trick2 finished successfully!")
+    print("\n🎉 Trick2 finished successfully!")
 
 
+# RUN
 if __name__ == "__main__":
     main()

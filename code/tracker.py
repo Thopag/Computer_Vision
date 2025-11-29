@@ -16,7 +16,7 @@ CONFIG = {
     "CONF_THR": 0.25,
     "IOU_THR": 0.1,
     "MODEL": "yolov8n.pt",
-    "N_OBJECTS": 2
+    "N_OBJECTS": 3
 
 }
 
