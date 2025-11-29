@@ -9,7 +9,7 @@ model = YOLO('yolov8n.pt')  # Load the model ONCE
 np.random.seed(42)
 colors = np.random.randint(0, 255, size=(100, 3), dtype=np.uint8)
 
-def detect_objects(frame, confidence_threshold=0.0):
+def detect_objects(frame, confidence_threshold=0.0, get_dim=False):
     """
     Detect objects in an image using YOLOv8 and convert boxes to masks.
     
@@ -28,6 +28,8 @@ def detect_objects(frame, confidence_threshold=0.0):
 
     masks = []
     labels = []
+    if get_dim:
+        dims = []
 
     H, W = frame.shape[:2]
     class_names = results.names
@@ -50,6 +52,12 @@ def detect_objects(frame, confidence_threshold=0.0):
         class_id = int(box.cls[0])
         class_name = class_names[class_id]
         labels.append(class_name)
+
+        if get_dim:
+            dims.append([abs(x1-x2), abs(y1-y2)])
+
+    if get_dim:
+        return masks, labels, dims
 
     return masks, labels
 

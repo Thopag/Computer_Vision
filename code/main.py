@@ -12,17 +12,24 @@ from utils.video import get_number_of_frames
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
 #------------------------------------------------
-in_path  = "../input/group_11_dynamic.mp4"
-out_path = "../output/main_group_11_dynamic.mp4"
+grp = 11
+fixed = False
+
+if fixed:
+    t = "fixed"
+else:
+    t = "dynamic"
+
+in_path  = f"../input/video_group_{grp}_{t}.mp4"
+out_path = f"../output/main_group_{grp}_{t}.mp4"
 txt_path = out_path[:-4] + ".txt"
 
-json_path = "../input/annotations_group_11.json"
-fixed = False
+json_path = f"../input/annotations_group_{grp}.json"
 
 def main() :
     start_main = time.time()
     cap = cv2.VideoCapture(in_path)
-    
+
     f = open(txt_path, "w", encoding="utf-8")
 
     #------------General set up------------#
@@ -37,15 +44,20 @@ def main() :
 
     start = time.time()
     nbr_trick1, nbr_trick2, nbr_trick3 = get_number_of_frames(cap, json_path, fixed)
-    
+
     #------------Trick1------------#
     start_1 = time.time()
 
-    blacklist = ['cakeress', 'dining table', 'person', 'cell phone', 'remote', 'handbag', 'cake', 'frisbee', 'cup', 'tie', 'skateboard']
+    blacklist = ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
+    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv']
     with_first_frame = False
     read_every_x_frame = 5
+    forget_time = 2*fps
 
-    trick1(writer, cap, nbr_trick1, blacklist, with_first_frame, read_every_x_frame, file=f)
+    SE_fraction=0.75
+    tuning=35 # Default 35
+
+    trick1(writer, cap, nbr_trick1, blacklist, read_every_x_frame, forget_time, f, SE_fraction, tuning, with_first_frame, grp)
 
     end_1 = time.time()
     #------------Trick2------------#
@@ -55,12 +67,12 @@ def main() :
                     "orange", "handbag","keyboard" ]
     read_every_x_frame = 10
     
-    trick2(cap, writer, nbr_trick2, to_remove, read_every_x_frame, file=f)
+    #trick2(cap, writer, nbr_trick2, to_remove, read_every_x_frame, file=f)
 
     end_2 = time.time()
     #------------Trick3------------#
     start_3 = time.time()
-    
+
     #trick3(cap, writer, nbr_trick3, ....)
 
     end_3 = time.time()

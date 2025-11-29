@@ -1,4 +1,5 @@
 import cv2
+import os
 import numpy as np
 
 def detect_color(image, color ,lower,upper, tuning=25):
@@ -70,3 +71,39 @@ def change_color_mask(image, orig_rgb, target_rgb, mask):
         cv2.bitwise_and(bgr_shifted, bgr_shifted, mask=mask)
     )
     return result
+
+def get_color_on_video(in_path, color, lower, upper, tuning=25, fraction= 1, out_path=None):
+
+    cap = cv2.VideoCapture(in_path)
+    if not out_path:
+        file_name = os.path.basename(in_path)[:-4]
+        out_path = f"../output/color.mp4"
+
+    #------------Set up------------#
+
+    if not cap.isOpened():
+        raise IOError(f"Could not open {in_path}")
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    w   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    h   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) * fraction)
+    fourcc = cv2.VideoWriter_fourcc(*"mp4v") 
+    writer = cv2.VideoWriter(out_path, fourcc, fps, (w, h))
+
+    for frame_idx in range(total_frames):
+
+        ok, frame = cap.read()
+        if not ok:
+            break
+        
+        print(f"Progress: {(frame_idx)/(total_frames) *100:.2f} %", end="\r")
+
+        green_mask = detect_color(frame, color, lower, upper, tuning)
+        green_pixels = cv2.bitwise_and(frame, frame, mask=green_mask)
+
+        writer.write(green_pixels)
+
+    cap.release()
+    writer.release()
+
+    return
