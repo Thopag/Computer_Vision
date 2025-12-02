@@ -6,7 +6,8 @@ from utils.color import detect_color, change_color_mask
 from utils.ROI import roi
 from utils.geometry import grow_object
 
-def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter , nb_frame , to_remove ,read_every_x_frame, file=None):
+def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter ,
+            nb_frame , to_remove ,read_every_x_frame, file=None):
     switch = 0
     overlap_prev = False
 

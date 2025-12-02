@@ -64,7 +64,7 @@ def main() :
     start_2 = time.time()
 
     to_remove = ["person", "dining table", "sports ball",
-                    "orange", "handbag","keyboard" ]
+                    "orange", "handbag","keyboard" ]s
     read_every_x_frame = 10
     
     #trick2(cap, writer, nbr_trick2, to_remove, read_every_x_frame, file=f)
