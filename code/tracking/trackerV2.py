@@ -100,8 +100,11 @@ def iou(bb1, bb2):
 # SIMPLE ONLINE KALMAN TRACKER
 # =====================================================================
 class KalmanBoxTracker:
-    def __init__(self, init_box):
+    def __init__(self, init_box, time_before_sleep):
         self.kf = cv2.KalmanFilter(8, 4)
+        self.time_before_sleep = time_before_sleep
+        self.timer = time_before_sleep
+
         dt = 1.0
 
         # State transition: [cx cy w h vx vy vw vh]
@@ -212,7 +215,7 @@ def main():
                                  fps, (W,H))
 
         log = open(CONFIG["LOG_PATH"], "w")
-        log.write("Frame,ID,cx,cy,w,h\n")
+        log.write("Frame,ID,cx,cy,w,h, ACTIVE(timer)\n")
 
         print("\n▶ Online Kalman tracking...")
 
@@ -240,7 +243,7 @@ def main():
                     detections.append(xyxy_to_cxcywh(float(x1),float(y1),float(x2),float(y2)))
 
             if len(detections) > 0:
-                i_det = np.zeros( (len(detections), CONFIG["N_OBJECTS"]), dtype=float)
+                all_i_per_det = np.zeros( (len(detections), CONFIG["N_OBJECTS"]), dtype=float)
                 for tid, trk in enumerate(trackers):
                     trackers_timers[tid] = trackers_timers[tid] - 1
                     if trackers_timers[tid] > 0:
@@ -249,10 +252,10 @@ def main():
 
                     for deti, det in enumerate(detections):
                         i = diou(trackers_last_pred[tid], cxcywh_to_xyxy(det))
-                        i_det[deti][tid] = i
+                        all_i_per_det[deti][tid] = i
 
                 best_matches = []
-                for i_vec, det in zip(i_det, detections):
+                for i_vec, det in zip(all_i_per_det, detections):
                     best_match = np.argmax(i_vec)
                     if best_match not in best_matches:
                         trackers[best_match].update(det)
