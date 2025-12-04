@@ -8,13 +8,10 @@
 ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
     'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv']
 
-
 # GRP 1
 "../input/video_group_1_fixed.mp4"
 ['person', 'skateboard', 'bench', 'surfboard', 'tennis racket', 'cell phone'
     , 'handbag', 'book', 'dining table', 'cake', 'suitcase', 'orange', 'tie', 'remote', 'teddy bear', 'frisbee', 'cat', 'fire hydrant']
-
-
 
 # GRP 3
 "../input/video_group_3_fixed.mp4"
@@ -30,7 +27,6 @@
 "../input/video_group_5_fixed.mp4"
 ['chair', 'dining table', 'person', 'skateboard', 'orange', 'book', 
     'fire hydrant', 'handbag', 'cake', 'suitcase', 'cell phone', 'bowl', 'remote', 'elephant', 'scissors', 'cat', 'tennis racket', 'bench']
-
 
 # GRP 10
 "../input/video_group_10_fixed.mp4"

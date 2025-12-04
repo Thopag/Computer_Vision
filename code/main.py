@@ -5,8 +5,9 @@ from ultralytics import YOLO
 from ultralytics.utils import LOGGER
 import time
 from trick1 import trick1
-from trick2 import trick2
-from utils.video import get_number_of_frames
+from garbage.trick2 import trick2
+from utils.video_splitting import get_number_of_frames
+from CONFIG import *
 
 #----------------------------------------------
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
@@ -64,7 +65,7 @@ def main() :
     start_2 = time.time()
 
     to_remove = ["person", "dining table", "sports ball",
-                    "orange", "handbag","keyboard" ]s
+                    "orange", "handbag","keyboard" ]
     read_every_x_frame = 10
     
     #trick2(cap, writer, nbr_trick2, to_remove, read_every_x_frame, file=f)
