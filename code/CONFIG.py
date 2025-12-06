@@ -41,20 +41,20 @@ CONFIG = {
     # process_noise:
     #     higher  = smoother, slower movement
     #     lower   = more reactive, less smooth
-    "kf_process_noise": 0.1,
+    "kf_process_noise": 1,
 
     # measurement_noise:
     #     higher  = trust detection less (more smoothing)
     #     lower   = trust detection more (faster reactions)
-    "kf_measurement_noise": 5.0,
+    "kf_measurement_noise": 2.0,
 
     # --- Limit impossible jumps (px/frame) ---
     # Prevents teleporting to mushroom or bottle
-    "max_prediction_jump": 40,
+    "max_prediction_jump": 30,
 
     # --- Backward smoothing (after full tracking) ---
     # If a single frame jumps too far → correct it
-    "smooth_jump_threshold": 45,
+    "smooth_jump_threshold": 30,
     "smooth_window": 2,
     "max_frame_gap": 12,   # do NOT smooth when wand is out of frame too long
 

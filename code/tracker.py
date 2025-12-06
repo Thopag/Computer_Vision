@@ -1,4 +1,5 @@
 import cv2
+import time
 import numpy as np
 from ultralytics import YOLO
 from code.utils.tracking.boxTracker import *
@@ -7,6 +8,7 @@ from code.utils.preprocessing.loadFile import load_ready , load_wand_log
 from code.utils.preprocessing.preprocessing import box_to_mask
 from code.utils.ROI import roi
 from code.CONFIG import CONFIG
+
 import os
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -471,9 +473,22 @@ def visualizer():
 # ============================================================================
 
 if __name__ == "__main__":
-    
+    start1 = time.time()
     boxTracker()
+    end1 = time.time()
     wandTracker()
+    end2 = time.time()
     visualizer()
+    end3 =time.time()
+    print("=============================================")
+    elapsed_1 = end1 - start1
+    print(f"boxTracker Execution time: {elapsed_1:.4f} seconds")
+    elapsed_2 = end2 - end1
+    print(f"wandTracker Execution time: {elapsed_2:.4f} seconds")
+    elapsed_3 = end3 - end2
+    print(f"visualize   Execution time: {elapsed_3:.4f} seconds")
+    elapsed = end3 - start1
+    print(f"The main execution time is :{elapsed:.4f}")
+    print("=============================================")
 
   
