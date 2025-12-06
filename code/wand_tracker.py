@@ -405,10 +405,10 @@ def wand_tracker(
 
 if __name__ == "__main__":
     wand_tracker(
-        "../input/dynamic/trick2.mp4",
-        "../output/trick2_log.txt",            # <--- REMOVE these objects first
-        "../output/wand_tracker_final.mp4",
-        "../output/wand_tracker_final.txt",
+        "../input/dynamic/trick3.mp4",
+        "../output/trick3_log.txt",            # <--- REMOVE these objects first
+        "../output/wand_tracker_final3.mp4",
+        "../output/wand_tracker_final3.txt",
         start_frame=150,
         cfg=CONFIG
     )

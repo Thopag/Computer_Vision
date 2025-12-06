@@ -9,9 +9,9 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 # CONFIGURATION
 # =====================================================================
 CONFIG = {
-    "IN_PATH": "../input/dynamic/trick2.mp4",
-    "OUT_PATH": "../output/trick2_onlineKF.mp4",
-    "LOG_PATH": "../output/trick2_log.txt",
+    "IN_PATH": "../input/dynamic/trick3.mp4",
+    "OUT_PATH": "../output/trick3_onlineKF.mp4",
+    "LOG_PATH": "../output/trick3_log.txt",
 
     "CONF_THR": 0.25,
     "IOU_THR": 0.1,
@@ -64,7 +64,7 @@ class KalmanBoxTracker:
         
         # State transition: [cx cy w h vx vy vw vh]
         self.kf.transitionMatrix = np.array([
-            [1,0,0,0, dt,0,0,0],
+            [1,0,0,0, dt,0,0,0],  
             [0,1,0,0, 0,dt,0,0],
             [0,0,1,0, 0,0,dt,0],
             [0,0,0,1, 0,0,0,dt],
