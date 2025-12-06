@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from ultralytics import YOLO
+from kalman_filter import KalmanBoxTracker
 import os
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
@@ -9,17 +10,17 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 # CONFIGURATION
 # =====================================================================
 CONFIG = {
-    "IN_PATH": "../input/video_group_11_dynamic.mp4",
-    "OUT_PATH": "../output/trackerV2_test.mp4",
-    "LOG_PATH": "../output/trackerV2_test.txt",
+    "IN_PATH": "../../input/video_group_11_dynamic.mp4",
+    "OUT_PATH": "../../output/trackerV2_test.mp4",
+    "LOG_PATH": "../../output/trackerV2_test.txt",
 
     "CONF_THR": 0.25,
     "IOU_THR": -np.inf,
     "MODEL": "yolov8n.pt",
     "N_OBJECTS": 3,
-    "nbr_frame_before_sleep": 30,
+    "nbr_frame_before_sleep": 15,
     "blacklist" : ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
-    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv']
+    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
 
 }
 
@@ -97,43 +98,6 @@ def iou(bb1, bb2):
     return inter / (area1 + area2 - inter + 1e-6)
 
 # =====================================================================
-# SIMPLE ONLINE KALMAN TRACKER
-# =====================================================================
-class KalmanBoxTracker:
-    def __init__(self, init_box, time_before_sleep):
-        self.kf = cv2.KalmanFilter(8, 4)
-        self.time_before_sleep = time_before_sleep
-        self.timer = time_before_sleep
-
-        dt = 1.0
-
-        # State transition: [cx cy w h vx vy vw vh]
-        self.kf.transitionMatrix = np.array([
-            [1,0,0,0, dt,0,0,0],
-            [0,1,0,0, 0,dt,0,0],
-            [0,0,1,0, 0,0,dt,0],
-            [0,0,0,1, 0,0,0,dt],
-            [0,0,0,0, 1,0,0,0],
-            [0,0,0,0, 0,1,0,0],
-            [0,0,0,0, 0,0,1,0],
-            [0,0,0,0, 0,0,0,1],
-        ], dtype=np.float32)
-
-        self.kf.measurementMatrix = np.eye(4, 8, dtype=np.float32)
-        self.kf.processNoiseCov = np.eye(8, dtype=np.float32) * 0.001
-        self.kf.measurementNoiseCov = np.eye(4, dtype=np.float32) * 0.05
-
-        cx,cy,w,h = init_box
-        self.kf.statePost = np.array([[cx],[cy],[w],[h],[0],[0],[0],[0]], dtype=np.float32)
-
-    def predict(self):
-        return self.kf.predict()[:4].ravel()
-
-    def update(self, det):
-        meas = np.array(det, dtype=np.float32).reshape(4,1)
-        self.kf.correct(meas)
-
-# =====================================================================
 # MOUSE CLICK SELECTION
 # =====================================================================
 clicks = []
@@ -202,9 +166,7 @@ def main():
         init_boxes = select_bboxes(frame0)
 
         # CREATE TRACKERS
-        trackers = [KalmanBoxTracker(b) for b in init_boxes]
-        trackers_timers = np.array([CONFIG["nbr_frame_before_sleep"]] * CONFIG["N_OBJECTS"])
-        trackers_last_pred = {}
+        trackers = [KalmanBoxTracker(b, CONFIG["nbr_frame_before_sleep"]) for b in init_boxes]
 
         # YOLO MODEL
         model = YOLO(CONFIG["MODEL"])
@@ -215,7 +177,7 @@ def main():
                                  fps, (W,H))
 
         log = open(CONFIG["LOG_PATH"], "w")
-        log.write("Frame,ID,cx,cy,w,h, ACTIVE(timer)\n")
+        log.write("Frame,ID,cx,cy,w,h\n")
 
         print("\n▶ Online Kalman tracking...")
 
@@ -245,13 +207,12 @@ def main():
             if len(detections) > 0:
                 all_i_per_det = np.zeros( (len(detections), CONFIG["N_OBJECTS"]), dtype=float)
                 for tid, trk in enumerate(trackers):
-                    trackers_timers[tid] = trackers_timers[tid] - 1
-                    if trackers_timers[tid] > 0:
-                        pred = trk.predict()
-                        trackers_last_pred[tid] = cxcywh_to_xyxy(pred)
+                    trk.decrement_timer()
+                    if trk.is_active():
+                        trk.predict()
 
                     for deti, det in enumerate(detections):
-                        i = diou(trackers_last_pred[tid], cxcywh_to_xyxy(det))
+                        i = diou(cxcywh_to_xyxy(trk.last_pred), cxcywh_to_xyxy(det))
                         all_i_per_det[deti][tid] = i
 
                 best_matches = []
@@ -259,16 +220,15 @@ def main():
                     best_match = np.argmax(i_vec)
                     if best_match not in best_matches:
                         trackers[best_match].update(det)
-                        trackers_timers[best_match] = CONFIG["nbr_frame_before_sleep"]
                     best_matches.append(best_match)
 
             # DRAW
             vis = frame.copy()
             for tid, trk in enumerate(trackers):
                 
-                if trackers_timers[tid] > 0:
+                if trk.is_active():
                     cx,cy,w,h = trk.kf.statePost[:4].ravel()
-                    log.write(f"{frame_idx},{tid},{cx},{cy},{w},{h}, ACTIVE({trackers_timers[tid]})\n")
+                    log.write(f"{frame_idx},{tid},{cx},{cy},{w},{h}\n")
 
                     state = trk.kf.statePost[:4].ravel()
                     x1,y1,x2,y2 = cxcywh_to_xyxy(state)

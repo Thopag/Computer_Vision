@@ -61,7 +61,7 @@ def detect_objects(frame, confidence_threshold=0.0, get_dim=False):
 
     return masks, labels
 
-def annotate_video(in_path, read_every_x_frame=2, out_path=None, confidence_threshold=0.0):
+def annotate_video(in_path, read_every_x_frame=2, out_path=None, confidence_threshold=0.0, blacklist=[]):
     """
     Detect objects on a single frame and draw bounding boxes.
 
@@ -130,13 +130,17 @@ def annotate_video(in_path, read_every_x_frame=2, out_path=None, confidence_thre
             if conf < confidence_threshold:
                 continue
             class_id = int(box.cls[0])
+            label = class_names[class_id]
+            if label in blacklist:
+                continue
+            class_id = int(box.cls[0])
             x1, y1, x2, y2 = map(int, box.xyxy[0])
             color = colors[class_id % len(colors)].tolist()
             cv2.rectangle(annotated_frame, (x1, y1), (x2, y2), color, 2)
 
             label = class_names[class_id]
             cv2.putText(annotated_frame, f"{label} {conf:.2f}", 
-                        (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                        (x1, y1 +15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
             
             if frame_idx % read_every_x_frame == 0:
                 f.write(f"Find [{label}] with confidence [{conf:.2f}]\n")

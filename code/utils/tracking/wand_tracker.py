@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import time
+from scipy.interpolate import CubicSpline
 
 
 # ============================================================================
@@ -219,7 +220,6 @@ def backward_smooth(track, cfg):
             out[i]["cy"] = int(new_pos[1])
 
     return out
-
 
 
 # ============================================================================
