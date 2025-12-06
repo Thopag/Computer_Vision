@@ -6,115 +6,14 @@
 # ===========================================================
 import cv2
 import numpy as np
-
 from utils.color import change_color_mask
-from utils.ROI import roi
+from utils.loadFile import load_interactions, load_ready
+from preprocessing import box_to_mask,group_blocks
 from utils.geometry import (
-    grow_object,
     grow_object_magic,
     fade_object_magic,        # Already implemented in geometry.py
-    find_contour_from_bbox    # Used inside grow/fade
 )
 
-# ===========================================================
-# LOAD ready.txt
-# ===========================================================
-def load_ready(path):
-    data = {}
-    with open(path, "r") as f:
-        next(f)
-        for line in f:
-            frame, tid, cx, cy, w, h = line.strip().split(",")
-            frame = int(frame)
-            tid   = int(tid)
-            cx, cy, w, h = map(float, (cx, cy, w, h))
-
-            if frame not in data:
-                data[frame] = []
-
-            data[frame].append({
-                "id": tid,
-                "cx": cx,
-                "cy": cy,
-                "w": w,
-                "h": h
-            })
-    return data
-
-
-# ===========================================================
-# LOAD interactions.txt
-# ===========================================================
-def load_interactions(path):
-
-    ball_frames = []
-    bottle_frames = []
-    mushroom_frames = []
-
-    with open(path, "r") as f:
-        next(f)
-        for line in f:
-            if ":" not in line:
-                continue
-            frame, txt = line.strip().split(":")
-            frame = int(frame)
-            txt = txt.lower()
-
-            if "ball" in txt:
-                ball_frames.append(frame)
-            elif "bottle" in txt:
-                bottle_frames.append(frame)
-            elif "mushroom" in txt:
-                mushroom_frames.append(frame)
-
-    return {
-        "ball": sorted(ball_frames),
-        "bottle": sorted(bottle_frames),
-        "mushroom": sorted(mushroom_frames)
-    }
-
-
-# ===========================================================
-# GROUP consecutive frames into blocks
-# ===========================================================
-def group_blocks(frames):
-    if not frames:
-        return []
-    blocks = []
-    curr = [frames[0]]
-    for f in frames[1:]:
-        if f == curr[-1] + 1:
-            curr.append(f)
-        else:
-            blocks.append(curr)
-            curr = [f]
-    blocks.append(curr)
-    return blocks
-
-
-# ===========================================================
-# SIMPLE BOX MASK
-# ===========================================================
-def box_to_mask(frame, cx, cy, w, h):
-    H, W = frame.shape[:2]
-    x1 = int(cx - w/2)
-    y1 = int(cy - h/2)
-    x2 = int(cx + w/2)
-    y2 = int(cy + h/2)
-
-    x1 = max(0, min(W-1, x1))
-    x2 = max(0, min(W-1, x2))
-    y1 = max(0, min(H-1, y1))
-    y2 = max(0, min(H-1, y2))
-
-    mask = np.zeros((H, W), dtype=np.uint8)
-    mask[y1:y2, x1:x2] = 255
-    return mask
-
-
-# ===========================================================
-# MAIN TRICK2
-# ===========================================================
 def trick2(
     cap,
     writer,
@@ -286,48 +185,3 @@ def trick2(
 
     file.write("End trick2\n")
     return 1
-
-
-# ===========================================================
-# MAIN
-# ===========================================================
-def main():
-
-    cap = cv2.VideoCapture("../input/dynamic/trick2.mp4")
-    if not cap.isOpened():
-        print("❌ Cannot open video")
-        return
-
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    W   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    H   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    nb_frame = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-
-    writer = cv2.VideoWriter(
-        "../output/trick2_result.mp4",
-        cv2.VideoWriter_fourcc(*"mp4v"),
-        fps, (W, H)
-    )
-
-    f = open("../output/trick2_debug.txt", "w")
-    f.write("Trick2 start\n")
-
-    trick2(
-        cap=cap,
-        writer=writer,
-        nb_frame=nb_frame,
-        ready_path="../output/ready.txt",
-        interaction_path="../output/interactions.txt",
-        file=f
-    )
-
-    cap.release()
-    writer.release()
-    f.close()
-
-    print("\n🎉 Trick2 finished successfully!")
-
-
-# RUN
-if __name__ == "__main__":
-    main()
