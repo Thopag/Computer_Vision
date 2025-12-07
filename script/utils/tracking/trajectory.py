@@ -1,5 +1,5 @@
 import numpy as np
-from box import box_to_mask
+from ..box import box_to_mask
 
 class object_trajectory:
 
@@ -20,10 +20,6 @@ class object_trajectory:
                 self.obj_dict[tid]["cy"].append(cy)
                 self.obj_dict[tid]["w"].append(w)
                 self.obj_dict[tid]["h"].append(h)
-
-        # for i in range(nbr_object):
-        #     obj_traj = self.obj_dict[i]
-        #     obj_traj = {k: np.array(v) for k, v in obj_traj.items()}
     
     def boxs_at_frame(self, frame_idx):
 

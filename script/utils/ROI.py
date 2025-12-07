@@ -1,10 +1,6 @@
 import cv2
 import numpy as np
-from ultralytics import YOLO
 import matplotlib.pyplot as plt
-
-# Load YOLO model once (do this outside the function)
-model = YOLO('yolov8n.pt')
 
 # Generate consistent colors for classes
 np.random.seed(42)
@@ -84,7 +80,6 @@ def roi(mask, s_erod, s_dil):
     eroded_mask = cv2.erode(mask,SE)
     
     #then we dilate to get the full region of interest around the detected object
-    
     kernel_dil = (s_dil , s_dil)
     SE= cv2.getStructuringElement(cv2.MORPH_RECT,kernel_dil)
     

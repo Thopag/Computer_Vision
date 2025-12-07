@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
-from trajectory import object_trajectory
-from box import draw_box
+from .trajectory import object_trajectory
+from ..box import draw_box
 
 # ============================================================
 # VISUALIZER
@@ -63,8 +63,8 @@ def visualizer(video_path, object_path, output_video,):
 # ============================================================
 if __name__ == "__main__":
     visualizer(
-        video_path="../../input/video_group_11_dynamic.mp4",
-        object_path="../../output/test_inter.txt",
-        output_video="../../output/object_visual.mp4",
+        video_path="input/video_group_11_dynamic.mp4",
+        object_path="output/test_inter.txt",
+        output_video="output/object_visual.mp4",
     )
     print("🎉 Visualization complete!")

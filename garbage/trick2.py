@@ -1,10 +1,10 @@
 # This file contains the definition of the trick2 function 
 import cv2
 import numpy as np 
-from utils.yolo import detect_objects
-from utils.color import detect_color, change_color_mask
-from utils.ROI import roi
-from utils.geometry import grow_object
+from script.utils.yolo import detect_objects
+from script.utils.color import detect_color, change_color_mask
+from script.utils.ROI import roi
+from script.utils.geometry import grow_object
 
 def trick2(cap: cv2.VideoCapture, writer: cv2.VideoWriter ,
             nb_frame , to_remove ,read_every_x_frame, file=None):

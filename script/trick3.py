@@ -5,9 +5,9 @@ import math
 
 from detection.yolo_detector import YOLODetector
 from detection.magician_detector import MagicianDetector
-from code.utils.video_splitting import load_json, time_to_seconds
+from script.utils.video_splitting import load_json, time_to_seconds
 
-from code.tracking.wand_tracker_florent import CONFIG, detect_red_strict, extract_red_blobs, create_kalman
+from script.tracking.wand_tracker_florent import CONFIG, detect_red_strict, extract_red_blobs, create_kalman
 from motion.wand_motion import WandMotion
 from motion.ball_motion import BallMotion
 from motion.magician_motion import MagicianMotion
