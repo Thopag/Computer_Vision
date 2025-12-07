@@ -1,8 +1,7 @@
 import numpy as np
 from scipy.interpolate import interp1d
-from trajectory import object_trajectory
-
-degree = 'linear'
+from .trajectory import object_trajectory
+from ...CONFIG import *
 
 def make_interpolation(obj_dict):
 
@@ -12,10 +11,10 @@ def make_interpolation(obj_dict):
     h = np.array(obj_dict["h"], dtype=float)
     w = np.array(obj_dict["w"], dtype=float)
 
-    f_x = interp1d(frames, cx, kind=degree)
-    f_y = interp1d(frames, cy, kind=degree)
-    f_h = interp1d(frames, h, kind=degree)
-    f_w = interp1d(frames, w, kind=degree)
+    f_x = interp1d(frames, cx, kind=INTERPOLATION_TYPE)
+    f_y = interp1d(frames, cy, kind=INTERPOLATION_TYPE)
+    f_h = interp1d(frames, h, kind=INTERPOLATION_TYPE)
+    f_w = interp1d(frames, w, kind=INTERPOLATION_TYPE)
 
     new_frames = np.arange(frames[0], frames[-1]+1, 1, dtype=float)
     new_cx = f_x(new_frames)
@@ -43,18 +42,23 @@ def write_trajectory_txt(obj_dict, id, f):
 
 if __name__ == "__main__":
 
-    output_txt = "../../output/trackerV2_test.txt"
+    object_path = f"files/object_tracking/{FILE_NAME}.txt"
 
-    obj_trajs = object_trajectory(output_txt, 3)
+    interpolation_txt = f"files/interpolation/{FILE_NAME}.txt"
 
-    obj_dict_1 = make_interpolation(obj_trajs.obj_dict[0])
-    obj_dict_2 = make_interpolation(obj_trajs.obj_dict[1])
-    obj_dict_3 = make_interpolation(obj_trajs.obj_dict[2])
-
-    new_output_txt = "../../output/test_inter.txt"
-    f = open(new_output_txt, "w")
+    f = open(interpolation_txt, "w")
     f.write("Frame,ID,cx,cy,w,h\n")
 
-    write_trajectory_txt(obj_dict_1, 0, f)
-    write_trajectory_txt(obj_dict_2, 1, f)
-    write_trajectory_txt(obj_dict_3, 2, f)
+    obj_trajs = object_trajectory(object_path, N_OBJECT)
+
+    for i in range(N_OBJECT):
+        obj_dict = make_interpolation(obj_trajs.obj_dict[i])
+        write_trajectory_txt(obj_dict, str(i), f)
+
+    # obj_dict_1 = make_interpolation(obj_trajs.obj_dict[0])
+    # obj_dict_2 = make_interpolation(obj_trajs.obj_dict[1])
+    # obj_dict_3 = make_interpolation(obj_trajs.obj_dict[2])
+
+    # write_trajectory_txt(obj_dict_1, 0, f)
+    # write_trajectory_txt(obj_dict_2, 1, f)
+    # write_trajectory_txt(obj_dict_3, 2, f)

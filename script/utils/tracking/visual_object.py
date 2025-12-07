@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 from .trajectory import object_trajectory
+from ...CONFIG import *
 from ..box import draw_box
 
 # ============================================================
@@ -9,7 +10,7 @@ from ..box import draw_box
 def visualizer(video_path, object_path, output_video,):
 
     # Load logs
-    obj_trajs = object_trajectory(object_path, 3)
+    obj_trajs = object_trajectory(object_path, N_OBJECT)
 
     print("▶ Loaded logs.")
 
@@ -44,9 +45,8 @@ def visualizer(video_path, object_path, output_video,):
 
         boxes = obj_trajs.boxs_at_frame(frame_idx)
 
-        draw_box(output, boxes[0], (0, 255, 0)  , "0")
-        draw_box(output, boxes[1], (255, 0, 255), "1")
-        draw_box(output, boxes[2], (255, 0, 0)  , "2")
+        for i, box in enumerate(boxes):
+            draw_box(output, box, (0, 255, 0)  , str(i))
 
         writer.write(output)
 
@@ -63,8 +63,8 @@ def visualizer(video_path, object_path, output_video,):
 # ============================================================
 if __name__ == "__main__":
     visualizer(
-        video_path="input/video_group_11_dynamic.mp4",
-        object_path="output/test_inter.txt",
-        output_video="output/object_visual.mp4",
+        video_path=IN_PATH,
+        object_path=f"files/interpolation/{FILE_NAME}.txt",
+        output_video=f"files/interpolation/visual_{FILE_NAME}.mp4",
     )
     print("🎉 Visualization complete!")

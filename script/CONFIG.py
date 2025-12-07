@@ -15,6 +15,22 @@ FILE_NAME = f"group_{grp}_{t}"
 
 N_OBJECT = 3
 
+# -------------- YOLO -------------- #
+
+MODEL_PATH = "model/yolov8n.pt"
+READ_EVERY_X_FRAME = 5
+CONF_TRESHOLD = 0.0
+
+BLACKLIST = ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
+    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
+
+# -------------- TRACKER -------------- #
+
+KALMAN_TIMER = 15
+END_FRAME = None
+
+INTERPOLATION_TYPE = 'linear'
+
 # -------------- COLOR -------------- #
 
 GREEN = [0,255,0]

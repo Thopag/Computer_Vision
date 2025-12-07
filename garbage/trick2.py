@@ -1,7 +1,7 @@
 # This file contains the definition of the trick2 function 
 import cv2
 import numpy as np 
-from script.utils.yolo import detect_objects
+from garbage.yolo import detect_objects
 from script.utils.color import detect_color, change_color_mask
 from script.utils.ROI import roi
 from script.utils.geometry import grow_object

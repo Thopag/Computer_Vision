@@ -1,7 +1,8 @@
 import numpy as np
 import cv2
 
-def xyxy_to_cxcywh(x1, y1, x2, y2):
+def xyxy_to_cxcywh(state):
+    x1, y1, x2, y2 = state
     w = x2 - x1
     h = y2 - y1
     cx = x1 + w/2
@@ -98,7 +99,7 @@ def draw_box(frame, box, color, label):
     x2 = int(cx + w/2)
     y2 = int(cy + h/2)
     cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
-    cv2.putText(frame, label, (x1, y1 - 5),
+    cv2.putText(frame, label, (x1+5, y2+20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
         
     return
