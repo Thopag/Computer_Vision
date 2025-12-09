@@ -4,7 +4,7 @@ import numpy as np
 from .kalman_filter import KalmanBoxTracker
 from ..box import xyxy_to_cxcywh, cxcywh_to_xyxy, diou, draw_box
 from ...CONFIG import *
-from ..yolo_detector import yolo_detector
+from ..detection.yolo_detector import yolo_detector
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
@@ -54,7 +54,7 @@ def select_bboxes(frame):
 # =====================================================================
 # MAIN
 # =====================================================================
-def tracking(end_frame = END_FRAME):
+def tracking(end_frame = OBJ_TRACKEREND_FRAME):
 
     out_path = f"files/object_tracking/{FILE_NAME}.mp4"
     log_path = f"files/object_tracking/{FILE_NAME}.txt"
@@ -84,7 +84,7 @@ def tracking(end_frame = END_FRAME):
         init_boxes = select_bboxes(frame0)
 
         # CREATE TRACKERS
-        trackers = [KalmanBoxTracker(b, KALMAN_TIMER) for b in init_boxes]
+        trackers = [KalmanBoxTracker(b, KALMAN_OBJ_TIMER) for b in init_boxes]
 
         # YOLO DETECTOR
         detector = yolo_detector(BLACKLIST, CONF_TRESHOLD)

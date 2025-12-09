@@ -1,4 +1,4 @@
-from .utils.yolo_detector import yolo_video
+from .utils.detection.yolo_detector import yolo_video
 
 in_path  = f"input/video_group_1_dynamic.mp4"
 

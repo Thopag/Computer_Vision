@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+from script.CONFIG import *
 
 # Generate consistent colors for classes
 np.random.seed(42)
@@ -86,3 +87,27 @@ def roi(mask, s_erod, s_dil):
     roi_mask = cv2.dilate(eroded_mask,SE)
 
     return roi_mask
+
+def extract_blobs(mask):
+    contours,_ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    blobs = []
+
+    for c in contours:
+        area = cv2.contourArea(c)
+        if not (BLOB_MIN_AREA <= area <= BLOB_MAX_AREA):
+            continue
+
+        x, y, w, h = cv2.boundingRect(c)
+        if w > MAX_BLOB_WIDTH or h > MAX_BLOB_HEIGHT:
+            continue
+
+        M = cv2.moments(c)
+        if M["m00"] == 0:
+            continue
+
+        cx = int(M["m10"]/M["m00"])
+        cy = int(M["m01"]/M["m00"])
+
+        blobs.append({"center": (cx,cy), "bbox": (x,y,w,h), "area": area})
+
+    return blobs

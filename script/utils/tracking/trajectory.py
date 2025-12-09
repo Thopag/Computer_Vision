@@ -51,3 +51,43 @@ class object_trajectory:
                 masks.append(None)
 
         return masks
+
+class wand_trajectory:
+
+    def __init__(self, path):
+        
+        self.wand_dict =  {"frame" : [], "cx" : [], "cy" : [], "w" : [], "h" : []}
+
+        with open(path, "r") as f:
+            next(f)
+            for line in f:
+                frame, tid, cx, cy, w, h = line.strip().split(",")
+                frame, tid = map(int, (frame, tid))
+                cx, cy, w, h = map(float, (cx, cy, w, h))
+
+                self.wand_dict["frame"].append(frame)
+                self.wand_dict["cx"].append(cx)
+                self.wand_dict["cy"].append(cy)
+                self.wand_dict["w"].append(w)
+                self.wand_dict["h"].append(h)
+    
+    def box_at_frame(self, frame_idx):
+
+        idx = next((i for i, v in enumerate(self.wand_dict["frame"]) if v == frame_idx), None)
+        if idx:
+            i = idx
+            val = [self.wand_dict["cx"][i], self.wand_dict["cy"][i], self.wand_dict["w"][i], self.wand_dict["h"][i]]
+        else:
+            val = None
+        
+        return val
+
+    def mask_at_frame(self, frame_idx, frame):
+
+        val = self.box_at_frame(frame_idx)
+        if val != None:
+            mask = box_to_mask(frame, val[0], val[1], val[2], val[3])
+        else:
+            mask = None
+
+        return mask

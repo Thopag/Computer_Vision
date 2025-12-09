@@ -1,6 +1,7 @@
 import cv2
 import os
 import numpy as np
+from script.CONFIG import *
 
 def detect_color(image, color ,lower,upper, tuning=25):
     """
@@ -33,6 +34,17 @@ def detect_color(image, color ,lower,upper, tuning=25):
     
     mask = cv2.inRange(hsv, lower, upper)
     return mask
+
+def detect_red_strict(image):
+    hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+    mask1 = cv2.inRange(hsv, LOWER_RED1, UPPER_RED1)
+    mask2 = cv2.inRange(hsv, LOWER_RED2, UPPER_RED2)
+
+    mask = cv2.bitwise_or(mask1, mask2)
+    mask = cv2.medianBlur(mask, RED_MEDIAN_BLUR)
+    return mask
+
 
 def change_color_mask(image, orig_rgb, target_rgb, mask):
     """

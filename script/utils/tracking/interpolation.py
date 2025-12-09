@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.interpolate import interp1d
-from .trajectory import object_trajectory
+from .trajectory import object_trajectory, wand_trajectory
 from ...CONFIG import *
 
 def make_interpolation(obj_dict):
@@ -40,11 +40,10 @@ def write_trajectory_txt(obj_dict, id, f):
 
     return
 
-if __name__ == "__main__":
+def interpolation_object():
 
     object_path = f"files/object_tracking/{FILE_NAME}.txt"
-
-    interpolation_txt = f"files/interpolation/{FILE_NAME}.txt"
+    interpolation_txt = f"files/interpolation/object_{FILE_NAME}.txt"
 
     f = open(interpolation_txt, "w")
     f.write("Frame,ID,cx,cy,w,h\n")
@@ -55,10 +54,22 @@ if __name__ == "__main__":
         obj_dict = make_interpolation(obj_trajs.obj_dict[i])
         write_trajectory_txt(obj_dict, str(i), f)
 
-    # obj_dict_1 = make_interpolation(obj_trajs.obj_dict[0])
-    # obj_dict_2 = make_interpolation(obj_trajs.obj_dict[1])
-    # obj_dict_3 = make_interpolation(obj_trajs.obj_dict[2])
+    return
 
-    # write_trajectory_txt(obj_dict_1, 0, f)
-    # write_trajectory_txt(obj_dict_2, 1, f)
-    # write_trajectory_txt(obj_dict_3, 2, f)
+def interpolation_wand():
+
+    wand_path = f"files/wand_tracking/{FILE_NAME}.txt"
+    interpolation_txt = f"files/interpolation/wand_{FILE_NAME}.txt"
+
+    f = open(interpolation_txt, "w")
+    f.write("Frame,ID,cx,cy,w,h\n")
+
+    wand_traj = wand_trajectory(wand_path)
+
+    wand_traj = make_interpolation(wand_traj.wand_dict)
+    write_trajectory_txt(wand_traj, "-1", f)
+
+    return 
+
+if __name__ == "__main__":
+    interpolation_wand()

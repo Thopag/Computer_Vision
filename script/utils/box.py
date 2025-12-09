@@ -10,7 +10,7 @@ def xyxy_to_cxcywh(state):
     return np.array([cx, cy, w, h], dtype=np.float32)
 
 def cxcywh_to_xyxy(state):
-    cx, cy, w, h = state[:4]
+    cx, cy, w, h = state
     return int(cx - w/2), int(cy - h/2), int(cx + w/2), int(cy + h/2)
 
 def diou(bb1, bb2):
