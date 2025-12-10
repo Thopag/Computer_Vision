@@ -4,7 +4,7 @@ import numpy as np
 from script.utils.tracking.trajectory import object_trajectory, wand_trajectory
 from script.utils.file_handler import load_interactions, group_blocks
 from script.utils.box import box_to_mask, draw_box
-from script.utils.color import change_color_mask
+from script.utils.detection.color import change_color_mask
 from script.utils.geometry import grow_object_magic
 from script.CONFIG import *
 

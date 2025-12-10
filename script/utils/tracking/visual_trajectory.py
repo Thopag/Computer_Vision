@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 from script.utils.tracking.trajectory import object_trajectory, wand_trajectory
 from script.utils.box import draw_box,box_to_mask
-from script.utils.ROI import roi
+from script.utils.mask_operation import roi
 from script.CONFIG import *
 # ============================================================
 # VISUALIZER

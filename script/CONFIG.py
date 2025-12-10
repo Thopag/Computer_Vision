@@ -15,6 +15,7 @@ JSON_PATH = f"input/annotations_group_{grp}.json"
 FILE_NAME = f"group_{grp}_{t}"
 
 N_OBJECT = 3
+# 0 : ball || 1 : bottle || 2 : obj3
 
 # -------------- YOLO -------------- #
 

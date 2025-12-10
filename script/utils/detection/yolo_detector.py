@@ -48,15 +48,16 @@ class yolo_detector:
             label = class_names[class_id]
             if label in self.blacklist:
                 continue
-            
-            self.confs.append(conf)
-            self.labels.append(label)
 
             # Get box coordinates
             x1, y1, x2, y2 = map(int, box.xyxy[0])
             box_xy = (x1, y1, x2, y2)
+            box_cc = xyxy_to_cxcywh(box_xy)
+    
+            self.confs.append(conf)
+            self.labels.append(label)
             self.boxes_xy.append(box_xy)
-            self.boxes_cc.append(xyxy_to_cxcywh(box_xy))
+            self.boxes_cc.append(box_cc)
 
         self.last_results = results
 
