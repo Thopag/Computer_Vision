@@ -97,7 +97,7 @@ def tracking(end_frame = OBJ_TRACKEREND_FRAME):
         log = open(log_path, "w")
         log.write("Frame,ID,cx,cy,w,h\n")
 
-        print("\n▶ Online Kalman tracking...")
+        print("\n Online Kalman tracking...")
 
         # reset to start frame
         cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
@@ -150,7 +150,7 @@ def tracking(end_frame = OBJ_TRACKEREND_FRAME):
         print("\nDONE. Tracking video saved:", out_path)
 
     except KeyboardInterrupt:
-        print("\n🛑 CTRL+C pressed")
+        print("\n CTRL+C pressed")
 
     finally:
         try: cap.release()
@@ -158,7 +158,7 @@ def tracking(end_frame = OBJ_TRACKEREND_FRAME):
         try: writer.release()
         except: pass
         cv2.destroyAllWindows()
-        print("🔻 Clean exit")
+        print(" Clean exit")
 
 
 # =====================================================================

@@ -30,11 +30,11 @@ BLACKLIST = ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', '
 OBJ_TRACKEREND_FRAME = None
 
 WAND_TRACKER_END_FRAME = None
-WAND_TRACKER_START_FRAME = 1615
+WAND_TRACKER_START_FRAME = 1500
 WAND_MAX_PRED_JUMP = 30
 
 MIN_W = 10
-MIN_W = 10
+MIN_H = 10
 
 # -- Kalman filter -- #
 
@@ -82,3 +82,10 @@ WITH_FIRST_FRAME = False
 S_DIL_CLOAK = 20
 S_ERODE_ROI = 15
 S_DIL_ROI = 15
+
+# -------------- TRICK 2 -------------- #
+WAND_ITER   = 3
+WAND_DILATE = 20
+
+OBJ_ITER    = 3
+OBJ_DILATE  = 20

@@ -72,4 +72,5 @@ def interpolation_wand():
     return 
 
 if __name__ == "__main__":
+    #interpolation_object()
     interpolation_wand()
