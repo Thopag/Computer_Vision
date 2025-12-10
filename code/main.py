@@ -6,7 +6,7 @@ from ultralytics.utils import LOGGER
 import time
 from trick1 import trick1
 from garbage.trick2 import trick2
-from utils.video_splitting import get_number_of_frames
+from code.utils.preprocessing.video_splitting import get_number_of_frames
 from CONFIG import *
 
 #----------------------------------------------
@@ -48,7 +48,7 @@ def main() :
 
     #------------Trick1------------#
     start_1 = time.time()
-
+    """
     blacklist = ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
     'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv']
     with_first_frame = False
@@ -59,7 +59,7 @@ def main() :
     tuning=35 # Default 35
 
     trick1(writer, cap, nbr_trick1, blacklist, read_every_x_frame, forget_time, f, SE_fraction, tuning, with_first_frame, grp)
-
+    """
     end_1 = time.time()
     #------------Trick2------------#
     start_2 = time.time()

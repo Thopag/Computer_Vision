@@ -6,13 +6,10 @@
 # ===========================================================
 import cv2
 import numpy as np
-from utils.color import change_color_mask
-from utils.loadFile import load_interactions, load_ready
-from preprocessing import box_to_mask,group_blocks
-from utils.geometry import (
-    grow_object_magic,
-    fade_object_magic,        # Already implemented in geometry.py
-)
+from code.utils.color import change_color_mask
+from code.utils.preprocessing.loadFile import load_interactions, load_ready
+from code.utils.preprocessing.preprocessing import box_to_mask,group_blocks
+from code.utils.geometry import grow_object_magic,  fade_object_magic 
 
 def trick2(
     cap,
@@ -185,3 +182,7 @@ def trick2(
 
     file.write("End trick2\n")
     return 1
+
+
+if __name__ == "__main__":
+    
