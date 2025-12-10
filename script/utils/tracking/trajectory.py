@@ -74,7 +74,7 @@ class wand_trajectory:
     def box_at_frame(self, frame_idx):
 
         idx = next((i for i, v in enumerate(self.wand_dict["frame"]) if v == frame_idx), None)
-        if idx:
+        if idx is not None:
             i = idx
             val = [self.wand_dict["cx"][i], self.wand_dict["cy"][i], self.wand_dict["w"][i], self.wand_dict["h"][i]]
         else:
