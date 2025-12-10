@@ -54,10 +54,9 @@ def select_bboxes(frame):
 # =====================================================================
 # MAIN
 # =====================================================================
-def tracking(end_frame = OBJ_TRACKEREND_FRAME):
+def object_tracking(out_path, log_path):
 
-    out_path = f"files/object_tracking/{FILE_NAME}.mp4"
-    log_path = f"files/object_tracking/{FILE_NAME}.txt"
+    end_frame = OBJ_TRACKEREND_FRAME
 
     try:
         start_frame = int(input("Enter frame number where objects appear: "))
@@ -165,4 +164,4 @@ def tracking(end_frame = OBJ_TRACKEREND_FRAME):
 # RUN
 # =====================================================================
 if __name__ == "__main__":
-    tracking()
+    object_tracking()

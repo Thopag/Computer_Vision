@@ -12,10 +12,8 @@ from script.utils.box import draw_box
 #                            MAIN WAND TRACKER 
 # ============================================================================
 
-def wandTracker():
+def wand_tracking(object_path, output_video, output_txt):
 
-    output_video = f"files/wand_tracking/{FILE_NAME}.mp4"
-    output_txt =  f"files/wand_tracking/{FILE_NAME}.txt"
     start_frame =  WAND_TRACKER_START_FRAME
     end_frame = WAND_TRACKER_END_FRAME
 
@@ -43,7 +41,7 @@ def wandTracker():
     log = open(output_txt, "w")
     log.write("frame,id,cx,cy,w,h\n")
 
-    obj_trajs = object_trajectory(f"files/interpolation/object_{FILE_NAME}.txt", N_OBJECT)
+    obj_trajs = object_trajectory(object_path, N_OBJECT)
     w_detector = wand_detector(obj_trajs)
     kalman_ready = False
 
@@ -106,4 +104,4 @@ def wandTracker():
 # ============================================================================
 
 if __name__ == "__main__":
-    wandTracker()
+    wand_tracking()

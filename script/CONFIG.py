@@ -2,7 +2,7 @@ import numpy as np
 
 grp = 11
 
-FIXED = False
+FIXED = True
 
 if FIXED:
     t = "fixed"
@@ -19,22 +19,22 @@ N_OBJECT = 3
 # -------------- YOLO -------------- #
 
 MODEL_PATH = "model/yolov8n.pt"
-READ_EVERY_X_FRAME = 5
+READ_EVERY_X_FRAME = 1
 CONF_TRESHOLD = 0.0
 
 BLACKLIST = ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
-    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
+    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"] + ['dining table', 'person', 'remote', 'handbag', 'cake', 'frisbee', 'cup', 'tie', 'sink', 'skateboard']
 
 # -------------- TRACKER -------------- #
 
 OBJ_TRACKEREND_FRAME = None
 
 WAND_TRACKER_END_FRAME = None
-WAND_TRACKER_START_FRAME = 1615
+WAND_TRACKER_START_FRAME = 2400 #1615
 WAND_MAX_PRED_JUMP = 30
 
 MIN_W = 10
-MIN_W = 10
+MIN_H = 10
 
 # -- Kalman filter -- #
 

@@ -7,7 +7,7 @@ from ..box import draw_box
 # ============================================================
 # VISUALIZER
 # ============================================================
-def visualizer_object(video_path, object_path, output_video):
+def visualizer_object(object_path, output_video):
 
     # Load logs
     obj_trajs = object_trajectory(object_path, N_OBJECT)
@@ -15,7 +15,7 @@ def visualizer_object(video_path, object_path, output_video):
     print("▶ Loaded logs.")
 
     # Open video
-    cap = cv2.VideoCapture(video_path)
+    cap = cv2.VideoCapture(IN_PATH)
     if not cap.isOpened():
         print("❌ ERROR: Cannot open input video")
         return
@@ -58,7 +58,7 @@ def visualizer_object(video_path, object_path, output_video):
     print("\n🎉 VISUALIZER DONE")
     print("→ video :", output_video)
 
-def visualizer_wand(video_path, wand_path, output_video):
+def visualizer_wand(wand_path, output_video):
 
     # Load logs
     wand_traj = wand_trajectory(wand_path)
@@ -66,7 +66,7 @@ def visualizer_wand(video_path, wand_path, output_video):
     print("▶ Loaded logs.")
 
     # Open video
-    cap = cv2.VideoCapture(video_path)
+    cap = cv2.VideoCapture(IN_PATH)
     if not cap.isOpened():
         print("❌ ERROR: Cannot open input video")
         return
@@ -110,9 +110,5 @@ def visualizer_wand(video_path, wand_path, output_video):
 # RUN
 # ============================================================
 if __name__ == "__main__":
-    visualizer_wand(
-        video_path=IN_PATH,
-        wand_path=f"files/interpolation/wand_{FILE_NAME}.txt",
-        output_video=f"files/interpolation/visual_wand_{FILE_NAME}.mp4",
-    )
+    visualizer_wand()
     print("🎉 Visualization complete!")

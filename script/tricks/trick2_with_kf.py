@@ -7,8 +7,8 @@
 import cv2
 import numpy as np
 
-from utils.color import change_color_mask
-from utils.ROI import roi
+from script.utils.detection.color import change_color_mask
+from script.utils.mask_operation import roi
 from utils.geometry import (
     grow_object,
     grow_object_magic,

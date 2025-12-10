@@ -1,8 +1,8 @@
 from script.CONFIG import *
 from script.utils.tracking.trajectory import object_trajectory
 from script.utils.box import cxcywh_to_xyxy
-from script.utils.color import detect_red_strict
-from script.utils.ROI import extract_blobs
+from script.utils.detection.color import detect_red_strict
+from script.utils.mask_operation import extract_blobs
 
 
 def remove_objects(frame, box_list):

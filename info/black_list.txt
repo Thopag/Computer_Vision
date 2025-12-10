@@ -1,34 +1,33 @@
 
 
-# GRP 11
-"../input/video_group_11_fixed.mp4"
-['dining table', 'person', 'remote', 'handbag', 'cake', 'frisbee', 'cup', 'tie', 'sink', 'skateboard']
-
-"../input/video_group_11_dynamic.mp4"
-['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
-    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
-
-# GRP 1
-"../input/video_group_1_fixed.mp4"
+# ----------------------------------- GRP 1 ----------------------------------- #
+"input/video_group_1_fixed.mp4"
 ['person', 'skateboard', 'bench', 'surfboard', 'tennis racket', 'cell phone'
     , 'handbag', 'book', 'dining table', 'cake', 'suitcase', 'orange', 'tie', 'remote', 'teddy bear', 'frisbee', 'cat', 'fire hydrant']
 
-# GRP 3
-"../input/video_group_3_fixed.mp4"
+# ----------------------------------- GRP 3 ----------------------------------- #
+"input/video_group_3_fixed.mp4"
 ['person', 'chair', 'dining table', 'train', 'bus', 'tennis racket', 'frisbee'
     , 'handbag', 'cake', 'tv', 'orange', 'book', 'cup', 'skateboard', 'laptop', 'refrigerator', 'remote', 'backpack', 'bowl']
 
-# GRP 4
-"../input/video_group_4_fixed.mp4"
+# ----------------------------------- GRP 4 ----------------------------------- #
+"input/video_group_4_fixed.mp4"
 ['fire hydrant', 'person', 'bed', 'dining table', 'skateboard', 'book', 'cup',  
     'handbag', 'kite', 'banana', 'surfboard', 'bird', 'frisbee', 'tv', 'tennis racket', 'bench', 'remote']
 
-# GRP 5
-"../input/video_group_5_fixed.mp4"
+# ----------------------------------- GRP 5 ----------------------------------- #
+"input/video_group_5_fixed.mp4"
 ['chair', 'dining table', 'person', 'skateboard', 'orange', 'book', 
     'fire hydrant', 'handbag', 'cake', 'suitcase', 'cell phone', 'bowl', 'remote', 'elephant', 'scissors', 'cat', 'tennis racket', 'bench']
 
-# GRP 10
-"../input/video_group_10_fixed.mp4"
+# ----------------------------------- GRP 10 ----------------------------------- #
+"input/video_group_10_fixed.mp4"
 ['person', 'tv', 'bed', 'frisbee', 'tennis racket', 'skateboard', 'sink', 'kite', 'handbag', 'umbrella', 'bird', 'cake', 'kite', 'surfboard']
 
+# ----------------------------------- GRP 11 ----------------------------------- #
+"input/video_group_11_fixed.mp4"
+['dining table', 'person', 'remote', 'handbag', 'cake', 'frisbee', 'cup', 'tie', 'sink', 'skateboard']
+
+"input/video_group_11_dynamic.mp4"
+['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
+    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]

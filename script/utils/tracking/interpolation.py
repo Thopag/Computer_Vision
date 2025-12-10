@@ -1,5 +1,6 @@
 import numpy as np
 from scipy.interpolate import interp1d
+
 from .trajectory import object_trajectory, wand_trajectory
 from ...CONFIG import *
 
@@ -40,12 +41,9 @@ def write_trajectory_txt(obj_dict, id, f):
 
     return
 
-def interpolation_object():
+def interpolation_object(object_path, out_txt):
 
-    object_path = f"files/object_tracking/{FILE_NAME}.txt"
-    interpolation_txt = f"files/interpolation/object_{FILE_NAME}.txt"
-
-    f = open(interpolation_txt, "w")
+    f = open(out_txt, "w")
     f.write("Frame,ID,cx,cy,w,h\n")
 
     obj_trajs = object_trajectory(object_path, N_OBJECT)
@@ -56,12 +54,9 @@ def interpolation_object():
 
     return
 
-def interpolation_wand():
+def interpolation_wand(wand_path, out_txt):
 
-    wand_path = f"files/wand_tracking/{FILE_NAME}.txt"
-    interpolation_txt = f"files/interpolation/wand_{FILE_NAME}.txt"
-
-    f = open(interpolation_txt, "w")
+    f = open(out_txt, "w")
     f.write("Frame,ID,cx,cy,w,h\n")
 
     wand_traj = wand_trajectory(wand_path)
