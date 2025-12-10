@@ -110,5 +110,10 @@ def visualizer_wand(wand_path, output_video):
 # RUN
 # ============================================================
 if __name__ == "__main__":
-    visualizer_wand()
+
+    interpolation_obj_txt = f"files/object_tracking/{FILE_NAME}.txt"#f"files/interpolation/object_{FILE_NAME}.txt"
+    interpolation_obj_video = f"files/interpolation/visual_object_{FILE_NAME}.mp4"
+
+    visualizer_object(interpolation_obj_txt, interpolation_obj_video)
+
     print("🎉 Visualization complete!")

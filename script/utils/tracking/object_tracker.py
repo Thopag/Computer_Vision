@@ -69,6 +69,10 @@ def object_tracking(out_path, log_path):
         W = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
         H = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        
+        print("-------------------------")
+        print(fps)
+        print("-------------------------")
 
         if end_frame == None:
             end_frame = total_frames
@@ -100,7 +104,6 @@ def object_tracking(out_path, log_path):
 
         # reset to start frame
         cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
-        frame_idx = start_frame
 
         for frame_idx in range(start_frame, end_frame+1):
 

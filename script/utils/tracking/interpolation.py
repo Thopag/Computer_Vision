@@ -12,6 +12,10 @@ def make_interpolation(obj_dict):
     h = np.array(obj_dict["h"], dtype=float)
     w = np.array(obj_dict["w"], dtype=float)
 
+    if len(frames) == 0:
+        print("NO TRAJECTORY")
+        return None
+
     f_x = interp1d(frames, cx, kind=INTERPOLATION_TYPE)
     f_y = interp1d(frames, cy, kind=INTERPOLATION_TYPE)
     f_h = interp1d(frames, h, kind=INTERPOLATION_TYPE)
@@ -27,6 +31,9 @@ def make_interpolation(obj_dict):
     return new_obj_dict
 
 def write_trajectory_txt(obj_dict, id, f):
+
+    if obj_dict == None:
+        return
 
     for i in range(len(obj_dict["frame"])):
 
@@ -67,4 +74,8 @@ def interpolation_wand(wand_path, out_txt):
     return 
 
 if __name__ == "__main__":
-    interpolation_wand()
+
+    wand_tracking_log =  f"files/wand_tracking/{FILE_NAME}.txt"
+    interpolation_wand_txt = f"files/interpolation/wand_{FILE_NAME}.txt"
+
+    interpolation_wand(wand_tracking_log, interpolation_wand_txt)

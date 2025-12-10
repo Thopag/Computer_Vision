@@ -22,7 +22,13 @@
 
 # ----------------------------------- GRP 10 ----------------------------------- #
 "input/video_group_10_fixed.mp4"
-['person', 'tv', 'bed', 'frisbee', 'tennis racket', 'skateboard', 'sink', 'kite', 'handbag', 'umbrella', 'bird', 'cake', 'kite', 'surfboard']
+['person', 'tv', 'bed', 'dog', 'baseball bat', 'bottle', 'frisbee', 'handbag', 'tennis racket', 'umbrella', 'sink', 'kite', 'bird', 'surfboard', 'cake']
+
+"input/video_group_10_dynamic.mp4"
+['person', 'cat', 'bed', 'book', 'skateboard', 'cup', 'dining table', 'cell phone', 
+    'sink', 'frisbee', 'tennis racket', 'orange', 'handbag', 'umbrella', 'baseball bat', 'suitcase', 'refrigerator', 'cake'
+                        , 'remote', 'chair', 'traffic light', 'bird', 'tv', 'vase', 'toilet', 'laptop', 'microwave', 'surfboard']
+
 
 # ----------------------------------- GRP 11 ----------------------------------- #
 "input/video_group_11_fixed.mp4"

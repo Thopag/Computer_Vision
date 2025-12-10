@@ -1,8 +1,8 @@
 import numpy as np
 
-grp = 11
+grp = 10
 
-FIXED = True
+FIXED = False
 
 if FIXED:
     t = "fixed"
@@ -22,8 +22,9 @@ MODEL_PATH = "model/yolov8n.pt"
 READ_EVERY_X_FRAME = 1
 CONF_TRESHOLD = 0.0
 
-BLACKLIST = ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
-    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"] + ['dining table', 'person', 'remote', 'handbag', 'cake', 'frisbee', 'cup', 'tie', 'sink', 'skateboard']
+BLACKLIST = ['person', 'cat', 'bed', 'book', 'skateboard', 'cup', 'dining table', 'cell phone', 
+    'sink', 'frisbee', 'tennis racket', 'orange', 'handbag', 'umbrella', 'baseball bat', 'suitcase', 'refrigerator', 'cake'
+                        , 'remote', 'chair', 'traffic light', 'bird', 'tv', 'vase', 'toilet', 'laptop', 'microwave', 'surfboard']
 
 # -------------- TRACKER -------------- #
 
