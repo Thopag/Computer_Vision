@@ -2,10 +2,10 @@ import cv2
 import os
 import numpy as np
 
-from .CONFIG import *
-from .utils.color import detect_color
-from .utils.ROI import get_overlap_componant, roi
-from .utils.tracking.trajectory import object_trajectory
+from script.CONFIG import *
+from script.utils.color import detect_color
+from script.utils.mask_operation import get_overlap_componant, roi
+from script.utils.tracking.trajectory import object_trajectory
 
 def create_kernel(mask, dim, kernel_fraction):
     kernel_er = [int(dim[0]*kernel_fraction), int(dim[1]*kernel_fraction)]
@@ -13,7 +13,7 @@ def create_kernel(mask, dim, kernel_fraction):
     kernel = cv2.erode(mask, adaptive_SE)
     return kernel
 
-def trick1(writer, cap, nb_frame):
+def trick1(writer, cap, nb_frame, debug=True):
     """
     Writer the next nbr_frame in the cap, with the trick 1.
 
@@ -102,6 +102,7 @@ def trick1(writer, cap, nb_frame):
 
         # ---- create new frame ---- #
 
+        
         if is_overlapping:
 
             # Small dilatation to take the cloak edges 
@@ -124,37 +125,39 @@ def trick1(writer, cap, nb_frame):
 
         # ---- Write for the object video ---- #
 
-        if len(valid_masks):
+        if debug:
+            if len(valid_masks):
 
-            # Get the frame of the object
-            sum_mask = np.sum(valid_masks, axis=0)
-            binary_mask = (sum_mask > 0).astype(np.uint8) * 255
-            object_frame = cv2.bitwise_and(frame, frame, mask=binary_mask) 
+                # Get the frame of the object
+                sum_mask = np.sum(valid_masks, axis=0)
+                binary_mask = (sum_mask > 0).astype(np.uint8) * 255
+                object_frame = cv2.bitwise_and(frame, frame, mask=binary_mask) 
 
-            # Get the mask of the kernels
-            sum_mask = np.sum(object_kernels, axis=0)
-            binary_mask = (sum_mask > 0).astype(np.uint8) * 255
+                # Get the mask of the kernels
+                sum_mask = np.sum(object_kernels, axis=0)
+                binary_mask = (sum_mask > 0).astype(np.uint8) * 255
 
-            # Put mask of the kernels in red
-            alpha = 0.5
-            obj_kernels = cv2.addWeighted(object_frame, 1 - alpha, red_overlay, alpha, 0)
+                # Put mask of the kernels in red
+                alpha = 0.5
+                obj_kernels = cv2.addWeighted(object_frame, 1 - alpha, red_overlay, alpha, 0)
 
-            # Merge the two
-            obj_frame = np.where(binary_mask[..., None] > 0, obj_kernels, object_frame)
+                # Merge the two
+                obj_frame = np.where(binary_mask[..., None] > 0, obj_kernels, object_frame)
 
-            alpha = 0.35
-            green_kernels = cv2.addWeighted(obj_frame, 1 - alpha, green_overlay, alpha, 0)
-            obj_frame = np.where(green_mask[..., None] > 0, green_kernels, obj_frame)
-            
-        else:
-            obj_frame = np.zeros_like(frame)
+                alpha = 0.35
+                green_kernels = cv2.addWeighted(obj_frame, 1 - alpha, green_overlay, alpha, 0)
+                obj_frame = np.where(green_mask[..., None] > 0, green_kernels, obj_frame)
+                
+            else:
+                obj_frame = np.zeros_like(frame)
 
-            alpha = 0.35
-            green_kernels = cv2.addWeighted(obj_frame, 1 - alpha, green_overlay, alpha, 0)
-            obj_frame = np.where(green_mask[..., None] > 0, green_kernels, obj_frame)
+                alpha = 0.35
+                green_kernels = cv2.addWeighted(obj_frame, 1 - alpha, green_overlay, alpha, 0)
+                obj_frame = np.where(green_mask[..., None] > 0, green_kernels, obj_frame)
+
+            writer_objects.write(obj_frame)
 
         writer.write(output_frame)
-        writer_objects.write(obj_frame)
 
     log.write(f"End trick 1 \n")
     writer_objects.release()

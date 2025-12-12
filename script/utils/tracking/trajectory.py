@@ -20,7 +20,7 @@ class object_trajectory:
                 self.obj_dict[tid]["cy"].append(cy)
                 self.obj_dict[tid]["w"].append(w)
                 self.obj_dict[tid]["h"].append(h)
-    
+
     def boxs_at_frame(self, frame_idx):
 
         values = []
@@ -34,7 +34,7 @@ class object_trajectory:
                 values.append(val)
             else:
                 values.append(None)
-        
+
         return values
 
     def masks_at_frame(self, frame_idx, frame):
@@ -70,7 +70,7 @@ class wand_trajectory:
                 self.wand_dict["cy"].append(cy)
                 self.wand_dict["w"].append(w)
                 self.wand_dict["h"].append(h)
-    
+
     def box_at_frame(self, frame_idx):
 
         idx = next((i for i, v in enumerate(self.wand_dict["frame"]) if v == frame_idx), None)

@@ -40,7 +40,7 @@ def yolo_video(in_path=IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist
         ok, frame = cap.read()
         if not ok:
             break
-        
+
         print(f"Progress: {(frame_idx)/(total_frames) *100:.2f} %", end="\r")
 
         # Make a copy to draw on
@@ -57,7 +57,7 @@ def yolo_video(in_path=IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist
                     if label not in seen_labels:
                             seen_labels.append(label)
                     f.write(f"Find [{label}] with confidence [{conf:.2f}]\n")
-        
+
         # draw the boxes
         detector.draw_detections(annotated_frame)
 

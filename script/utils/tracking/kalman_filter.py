@@ -25,8 +25,8 @@ class KalmanBoxTracker:
         ], dtype=np.float32)
 
         self.kf.measurementMatrix = np.eye(4, 8, dtype=np.float32)
-        self.kf.processNoiseCov = np.eye(8, dtype=np.float32) * 0.001
-        self.kf.measurementNoiseCov = np.eye(4, dtype=np.float32) * 0.05
+        self.kf.processNoiseCov = np.eye(8, dtype=np.float32) * KF_OBJ_PROCESS_NOISE
+        self.kf.measurementNoiseCov = np.eye(4, dtype=np.float32) * KF_OBJ_MEASUREMENT_NOISE
 
         cx,cy,w,h = init_box
         self.kf.statePost = np.array([[cx],[cy],[w],[h],[0],[0],[0],[0]], dtype=np.float32)

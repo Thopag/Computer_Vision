@@ -90,7 +90,7 @@ def box_to_mask(frame, cx, cy, w, h):
     return mask
 
 def draw_box(frame, box, color, label):
-    
+
     if box is None:
         return
     cx, cy, w, h = box
