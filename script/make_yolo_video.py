@@ -33,6 +33,10 @@ def yolo_video(in_path=IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist
     fourcc = cv2.VideoWriter_fourcc(*"mp4v") 
     writer = cv2.VideoWriter(out_path, fourcc, fps, (w, h))
 
+    print("-------------------------")
+    print(fps)
+    print("-------------------------")
+
     seen_labels = []
 
     for frame_idx in range(total_frames):

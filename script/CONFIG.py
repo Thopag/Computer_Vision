@@ -2,7 +2,7 @@ import numpy as np
 
 grp = 11
 
-FIXED = True
+FIXED = False
 
 if FIXED:
     t = "fixed"

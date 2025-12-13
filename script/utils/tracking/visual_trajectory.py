@@ -255,20 +255,19 @@ def visualizer_combined(
 # RUN
 # ============================================================
 if __name__ == "__main__":
-    # visualizer_object(
-    #     video_path= IN_PATH,
-    #     object_path= f"files/interpolation/object_{FILE_NAME}.txt",
-    #     output_video= f"files/interpolation/visual_object_{FILE_NAME}.mp4")
+    
+    visualizer_object(
+        object_path= f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj_backup.txt",
+        output_video= f"files/interpolation/{FILE_NAME}_visual_object_backup.mp4")
     # #visualizer_wand(
-    #     video_path=IN_PATH,
     #     wand_path=f"files/interpolation/wand_{FILE_NAME}.txt",
     #     output_video=f"files/interpolation/visual_wand_{FILE_NAME}.mp4")
     
-    visualizer_combined(
-    video_path = IN_PATH,
-    wand_path = f"files/interpolation/wand_{FILE_NAME}.txt",
-    object_path = f"files/interpolation/object_{FILE_NAME}.txt",
-    output_video = f"files/object_&_wand/visual_object_&_wand_{FILE_NAME}.mp4",
-    output_all_objects  = f"files/object_&_wand/visual_object_&_wand_{FILE_NAME}.txt",
-    output_interactions = f"files/object_&_wand/Interaction_object_&_wand_{FILE_NAME}.txt")
+    # visualizer_combined(
+    # video_path = IN_PATH,
+    # wand_path = f"files/interpolation/wand_{FILE_NAME}.txt",
+    # object_path = f"files/interpolation/object_{FILE_NAME}.txt",
+    # output_video = f"files/object_&_wand/visual_object_&_wand_{FILE_NAME}.mp4",
+    # output_all_objects  = f"files/object_&_wand/visual_object_&_wand_{FILE_NAME}.txt",
+    # output_interactions = f"files/object_&_wand/Interaction_object_&_wand_{FILE_NAME}.txt")
     print(" Visualization complete!")

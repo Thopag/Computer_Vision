@@ -30,6 +30,7 @@ class KalmanBoxTracker:
 
         cx,cy,w,h = init_box
         self.kf.statePost = np.array([[cx],[cy],[w],[h],[0],[0],[0],[0]], dtype=np.float32)
+        self.predict()
 
     def predict(self):
         self.last_pred = self.kf.predict()[:4].ravel()
