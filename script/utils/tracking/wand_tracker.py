@@ -1,6 +1,5 @@
 import cv2
 import numpy as np
-import time
 
 from script.CONFIG import *
 from .kalman_filter import KalmanWandTracker
@@ -8,9 +7,6 @@ from .trajectory import object_trajectory
 from script.utils.detection.wand_detector import wand_detector
 from script.utils.box import draw_box
 
-# ============================================================================
-#                            MAIN WAND TRACKER 
-# ============================================================================
 
 def wand_tracking(object_path, output_video, output_txt):
 
@@ -98,15 +94,19 @@ def wand_tracking(object_path, output_video, output_txt):
     cap.release()
     writer.release()
     log.close()
-    
+
 # ============================================================================
 # RUN
 # ============================================================================
 
 if __name__ == "__main__":
 
-    
-    wand_tracking_video = f"files/wand_tracking/{FILE_NAME}.mp4"
-    wand_tracking_log =  f"files/wand_tracking/{FILE_NAME}.txt"
+    obj_tracking_log  = f"files/object_tracking/{FILE_NAME}.txt"
+    wand_tracking_vid = f"files/wand_tracking/{FILE_NAME}.mp4"
+    wand_tracking_log = f"files/wand_tracking/{FILE_NAME}.txt"
 
-    wand_tracking(obj_tracking_log, wand_tracking_video, wand_tracking_log)
+    wand_tracking(
+        obj_tracking_log,
+        wand_tracking_vid,
+        wand_tracking_log,
+    )

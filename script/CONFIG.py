@@ -1,15 +1,15 @@
 import numpy as np
 
-grp = 10
+grp = 5
 
-FIXED = False
+FIXED = True
 
 if FIXED:
     t = "fixed"
 else:
     t = "dynamic"
 
-IN_PATH = f"input/video_group_{grp}_{t}.mp4"
+IN_PATH = f"input/group_{grp}/video_group_{grp}_{t}.mp4"
 OUT_PATH = f"output/video_group_{grp}_{t}.mp4"
 JSON_PATH = f"input/annotations_group_{grp}.json"
 FILE_NAME = f"group_{grp}_{t}"
@@ -23,17 +23,18 @@ MODEL_PATH = "model/yolov8n.pt"
 READ_EVERY_X_FRAME = 1
 CONF_TRESHOLD = 0.0
 
-BLACKLIST = ['person', 'cat', 'bed', 'book', 'skateboard', 'cup', 'dining table', 'cell phone', 
-    'sink', 'frisbee', 'tennis racket', 'orange', 'handbag', 'umbrella', 'baseball bat', 'suitcase', 'refrigerator', 'cake'
-                        , 'remote', 'chair', 'traffic light', 'bird', 'tv', 'vase', 'toilet', 'laptop', 'microwave', 'surfboard']
+BLACKLIST =['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
+    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
+
+
 
 # -------------- TRACKER -------------- #
 
 OBJ_TRACKEREND_FRAME = None
 
 WAND_TRACKER_END_FRAME = None
-WAND_TRACKER_START_FRAME = 2400 #1615
-WAND_MAX_PRED_JUMP = 30
+WAND_TRACKER_START_FRAME = 1170 #1615
+WAND_MAX_PRED_JUMP = 30 # was 30 for gr11
 
 MIN_W = 10
 MIN_H = 10
@@ -68,10 +69,10 @@ TUNNING_GREEN = 35
 
 # -- red -- #
 
-LOWER_RED1 = np.array([0, 120, 60])
-UPPER_RED1 = np.array([10, 255, 255])
+LOWER_RED1 = np.array([0, 165, 85])
+UPPER_RED1 = np.array([8, 255, 255])
 
-LOWER_RED2 = np.array([170, 120, 60])
+LOWER_RED2 = np.array([170, 165, 85])
 UPPER_RED2 = np.array([180, 255, 255])
 
 RED_MEDIAN_BLUR = 5
