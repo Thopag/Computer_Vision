@@ -12,6 +12,27 @@ WAND_2_TRACKER_END_FRAME = x # (x s)
 WAND_3_TRACKER_START_FRAME = x # (x s)
 WAND_3_TRACKER_END_FRAME = None
 
+------------ video_group_0_dynamic ------------
+
+fps = 60
+
+OBJ_TRACKER_START_FRAME = 900 # (15 s)
+OBJ_TRACKER_END_FRAME = 7200 # (120 s)
+
+OBJ_BALL_TRACKER_START_FRAME = 7200 # (120 s)
+OBJ_BALL_TRACKER_END_FRAME = None
+
+WAND_2_TRACKER_START_FRAME = 4080 # (68 s)
+WAND_2_TRACKER_END_FRAME = 7200 # (120 s)
+
+WAND_3_TRACKER_START_FRAME = 7560 # (128 s)
+WAND_3_TRACKER_END_FRAME = None
+
+['dining table', 'tv', 'book', 'chair', 'cell phone', 'laptop', 'train', 'skateboard', 'bench',
+                    'tie', 'suitcase', 'cake', 'bed', 'kite', 'umbrella', 'handbag', 'airplane', 'bird', 
+                'snowboard', 'backpack', 'frisbee', 'microwave', 'tennis racket', 'toothbrush', 'refrigerator', 'scissors', 'remote', 'fork', 'vase']
+
+
 ------------ video_group_11_static ------------
 
 fps = 30

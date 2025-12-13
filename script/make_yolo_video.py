@@ -5,7 +5,8 @@ from .utils.detection.yolo_detector import yolo_detector
 from .CONFIG import *
 
 
-def yolo_video(in_path=IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist=BLACKLIST , confidence_threshold=CONF_TRESHOLD):
+def yolo_video(in_path=IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist=BLACKLIST, control_list=CONTROL_LIST, 
+               confidence_threshold=CONF_TRESHOLD, start_frame=None, end_frame=None):
 
     cap = cv2.VideoCapture(in_path)
     out_path = f"files/yolo_output/{FILE_NAME}.mp4"
@@ -20,7 +21,7 @@ def yolo_video(in_path=IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist
     f.write(f"prediction every {read_every_x_frame} frames \n")
     f.write(f"confidence_threshold = {confidence_threshold} \n\n")
 
-    detector = yolo_detector(blacklist, confidence_threshold)
+    detector = yolo_detector(blacklist, confidence_threshold, control_list)
 
     #------------Set up------------#
 
@@ -33,26 +34,33 @@ def yolo_video(in_path=IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist
     fourcc = cv2.VideoWriter_fourcc(*"mp4v") 
     writer = cv2.VideoWriter(out_path, fourcc, fps, (w, h))
 
+    if start_frame == None:
+        end_frame = 0
+
+    if end_frame == None:
+        end_frame = total_frames
+
     print("-------------------------")
     print(fps)
     print("-------------------------")
 
     seen_labels = []
+    cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
 
-    for frame_idx in range(total_frames):
+    for frame_idx in range(start_frame, end_frame+1):
 
         ok, frame = cap.read()
         if not ok:
             break
 
-        print(f"Progress: {(frame_idx)/(total_frames) *100:.2f} %", end="\r")
+        print(f"Progress: {(frame_idx-start_frame)/(end_frame-start_frame) *100:.2f} %", end="\r")
 
         # Make a copy to draw on
         annotated_frame = frame.copy()
 
         if frame_idx % read_every_x_frame == 0:
 
-            f.write(f"\n  Video at {frame_idx/fps:.3f} s ({(frame_idx)/(total_frames) *100:.2f} %)\n")
+            f.write(f"\n  Video at {(frame_idx-start_frame)/fps:.3f} s ({(frame_idx-start_frame)/(end_frame-start_frame) *100:.2f} %)\n")
 
             detector.detect(frame)
 
@@ -76,4 +84,5 @@ def yolo_video(in_path=IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist
 
 if __name__ == "__main__":
 
-    yolo_video(IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist=[], confidence_threshold=CONF_TRESHOLD)
+    yolo_video(IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist=[], control_list=CONTROL_LIST, 
+               confidence_threshold=CONF_TRESHOLD, start_frame=900, end_frame=1500)

@@ -21,7 +21,9 @@ READ_EVERY_X_FRAME = 1
 CONF_TRESHOLD = 0.0
 
 BLACKLIST = ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
-    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
+            'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
+
+CONTROL_LIST = ['person']
 
 # -------------- TRACKER -------------- #
 
@@ -42,6 +44,11 @@ WAND_3_TRACKER_START_FRAME = 2580 # (86s)
 WAND_3_TRACKER_END_FRAME = None
 
 # -- prediction -- #
+MAX_W_OBJ = 75
+MAX_H_OBJ = 175
+
+ALPHA_CIOU = None
+
 WAND_MAX_PRED_JUMP = 30
 
 MIN_W = 10

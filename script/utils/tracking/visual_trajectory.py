@@ -257,8 +257,8 @@ def visualizer_combined(
 if __name__ == "__main__":
     
     visualizer_object(
-        object_path= f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj_backup.txt",
-        output_video= f"files/interpolation/{FILE_NAME}_visual_object_backup.mp4")
+        object_path= f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj.txt",
+        output_video= f"files/interpolation/{FILE_NAME}_visual_object.mp4")
     # #visualizer_wand(
     #     wand_path=f"files/interpolation/wand_{FILE_NAME}.txt",
     #     output_video=f"files/interpolation/visual_wand_{FILE_NAME}.mp4")

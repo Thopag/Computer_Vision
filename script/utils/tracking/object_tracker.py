@@ -2,7 +2,7 @@ import os
 import cv2
 import numpy as np
 from .kalman_filter import KalmanBoxTracker
-from ..box import xyxy_to_cxcywh, cxcywh_to_xyxy, diou, draw_box
+from ..box import xyxy_to_cxcywh, cxcywh_to_xyxy, ciou, draw_box
 from ...CONFIG import *
 from ..detection.yolo_detector import yolo_detector
 
@@ -82,7 +82,7 @@ def object_tracking(out_path, log_path, nbr_object, start_frame, end_frame=None)
         trackers = [KalmanBoxTracker(b, KALMAN_OBJ_TIMER) for b in init_boxes]
 
         # YOLO DETECTOR
-        detector = yolo_detector(BLACKLIST, CONF_TRESHOLD)
+        detector = yolo_detector(BLACKLIST, CONF_TRESHOLD, CONTROL_LIST)
 
         # OUTPUT VIDEO
         writer = cv2.VideoWriter(out_path,
@@ -113,7 +113,7 @@ def object_tracking(out_path, log_path, nbr_object, start_frame, end_frame=None)
                         trk.predict()
 
                     for deti, det in enumerate(detector.boxes_xy):
-                        i = diou(cxcywh_to_xyxy(trk.last_pred), det)
+                        i = ciou(cxcywh_to_xyxy(trk.last_pred), det)
                         all_i_per_det[deti][tid] = i
 
                 best_matches = []
@@ -245,6 +245,61 @@ def backup_tracking(out_path, log_path, nbr_object, start_frame, detect_each_x_f
         cv2.destroyAllWindows()
         print(" Clean exit")
 
+def static_tracking(out_path, log_path, nbr_object, start_frame, end_frame=None):
+
+    try:
+        cap = cv2.VideoCapture(IN_PATH)
+        if not cap.isOpened():
+            raise IOError("Cannot open video")
+
+        total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        log = open(log_path, "w")
+        log.write(f"nbr_object : {nbr_object}\n")
+        log.write("Frame,ID,cx,cy,w,h\n")
+
+        if end_frame == None:
+            end_frame = total_frames
+
+        # jump to selection frame
+        cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+        ok, frame0 = cap.read()
+        if not ok:
+            raise RuntimeError(f"Cannot read frame {start_frame}")
+    
+        # SELECT OBJECTS
+        init_boxes = select_bboxes(frame0, nbr_object)
+
+        for i, box in enumerate(init_boxes):
+            cx, cy, w, h = box
+            log.write(f"{start_frame},{i},{cx},{cy},{w},{h}\n")
+
+        # set to last frame
+        cap.set(cv2.CAP_PROP_POS_FRAMES, end_frame)
+
+        ok, last_frame = cap.read()
+        if not ok:
+            raise IOError("Cannot open video")
+
+        last_boxes = select_bboxes(last_frame, nbr_object)
+
+        for i, box in enumerate(last_boxes):
+            cx, cy, w, h = box
+            log.write(f"{end_frame},{i},{cx},{cy},{w},{h}\n")
+
+        cap.release()
+        log.close()
+        print("\nDONE. Tracking video saved:", out_path)
+
+    except KeyboardInterrupt:
+        print("\n CTRL+C pressed")
+
+    finally:
+        try: cap.release()
+        except: pass
+        cv2.destroyAllWindows()
+        print(" Clean exit")
+
 # =====================================================================
 # RUN
 # =====================================================================
@@ -253,8 +308,8 @@ if __name__ == "__main__":
     obj_tracking_video = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj.mp4"
     obj_tracking_log = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj.txt"
 
-    #object_tracking(obj_tracking_video, obj_tracking_log, 
-    #                    N_OBJECT, OBJ_TRACKER_START_FRAME, end_frame=OBJ_TRACKER_END_FRAME)
+    object_tracking(obj_tracking_video, obj_tracking_log, 
+                        N_OBJECT, OBJ_TRACKER_START_FRAME, end_frame=OBJ_TRACKER_END_FRAME)
     
     ball_tracking_video = f"files/object_tracking/{FILE_NAME}_ball.mp4"
     ball_tracking_log = f"files/object_tracking/{FILE_NAME}_ball.txt"
@@ -266,5 +321,5 @@ if __name__ == "__main__":
     obj_backup_tracking_log = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj_backup.txt"
     detect_each_x_frame = 45
 
-    backup_tracking(obj_backup_tracking_video, obj_backup_tracking_log, N_OBJECT, 
-                    OBJ_TRACKER_START_FRAME, detect_each_x_frame, end_frame=OBJ_TRACKER_END_FRAME)
+    #backup_tracking(obj_backup_tracking_video, obj_backup_tracking_log, N_OBJECT, 
+    #                OBJ_TRACKER_START_FRAME, detect_each_x_frame, end_frame=OBJ_TRACKER_END_FRAME)

@@ -9,10 +9,11 @@ model = YOLO(MODEL_PATH)
 
 class yolo_detector:
 
-    def __init__(self, blacklist = [], confidence_threshold = 0.0):
+    def __init__(self, blacklist = [], confidence_threshold = 0.0, control_list=[]):
 
         self.last_result = None
         self.blacklist = blacklist
+        self.control_list = control_list
         self.confidence_threshold = confidence_threshold
 
         self.boxes_xy = []
@@ -53,6 +54,11 @@ class yolo_detector:
             x1, y1, x2, y2 = map(int, box.xyxy[0])
             box_xy = (x1, y1, x2, y2)
             box_cc = xyxy_to_cxcywh(box_xy)
+            
+            if label in self.control_list:
+                _, _ , w, h = box_cc
+                if w > MAX_W_OBJ or h > MAX_H_OBJ:
+                    continue
     
             self.confs.append(conf)
             self.labels.append(label)

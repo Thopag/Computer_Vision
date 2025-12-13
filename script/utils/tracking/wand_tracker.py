@@ -107,4 +107,4 @@ if __name__ == "__main__":
     wand_tracking_video = f"files/wand_tracking/{FILE_NAME}.mp4"
     wand_tracking_log =  f"files/wand_tracking/{FILE_NAME}.txt"
 
-    wand_tracking(obj_tracking_log, wand_tracking_video, wand_tracking_log)
+    wand_tracking(wand_tracking_log, wand_tracking_video, wand_tracking_log)
