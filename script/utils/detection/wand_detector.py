@@ -4,7 +4,6 @@ from script.utils.box import cxcywh_to_xyxy
 from script.utils.detection.color import detect_red_strict
 from script.utils.mask_operation import extract_blobs
 
-
 def remove_objects(frame, box_list):
     """
     Paints object bounding boxes black (removes them).

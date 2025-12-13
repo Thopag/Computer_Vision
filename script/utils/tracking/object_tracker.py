@@ -20,7 +20,7 @@ def mouse_callback(event, x, y, flags, param):
         clicks.append((x,y))
         print("Clicked:", (x,y))
 
-def select_bboxes(frame):
+def select_bboxes(frame, nbr_object):
     global clicks, current_frame
     clicks = []
     current_frame = frame.copy()
@@ -28,7 +28,7 @@ def select_bboxes(frame):
     cv2.namedWindow("Select Objects", cv2.WINDOW_NORMAL)
     cv2.setMouseCallback("Select Objects", mouse_callback)
 
-    print(f"\nSelect {N_OBJECT} objects: click TOP-LEFT then BOTTOM-RIGHT")
+    print(f"\nSelect {nbr_object} objects: click TOP-LEFT then BOTTOM-RIGHT")
 
     while True:
         temp = current_frame.copy()
@@ -37,7 +37,7 @@ def select_bboxes(frame):
                 cv2.rectangle(temp, clicks[i], clicks[i+1], (0,255,0), 2)
         cv2.imshow("Select Objects", temp)
 
-        if len(clicks) == N_OBJECT*2:
+        if len(clicks) == nbr_object*2:
             break
         if cv2.waitKey(20) == 27:
             break
@@ -54,13 +54,9 @@ def select_bboxes(frame):
 # =====================================================================
 # MAIN
 # =====================================================================
-def object_tracking(out_path, log_path):
-
-    end_frame = OBJ_TRACKEREND_FRAME
+def object_tracking(out_path, log_path, nbr_object, start_frame, end_frame=None):
 
     try:
-        start_frame = int(input("Enter frame number where objects appear: "))
-
         cap = cv2.VideoCapture(IN_PATH)
         if not cap.isOpened():
             raise IOError("Cannot open video")
@@ -84,7 +80,7 @@ def object_tracking(out_path, log_path):
             raise RuntimeError(f"Cannot read frame {start_frame}")
 
         # SELECT OBJECTS
-        init_boxes = select_bboxes(frame0)
+        init_boxes = select_bboxes(frame0, nbr_object)
 
         # CREATE TRACKERS
         trackers = [KalmanBoxTracker(b, KALMAN_OBJ_TIMER) for b in init_boxes]
@@ -98,6 +94,7 @@ def object_tracking(out_path, log_path):
                                  fps, (W,H))
 
         log = open(log_path, "w")
+        log.write(f"nbr_object : {nbr_object}\n")
         log.write("Frame,ID,cx,cy,w,h\n")
 
         print("\n Online Kalman tracking...")
@@ -114,7 +111,7 @@ def object_tracking(out_path, log_path):
             detector.detect(frame)
 
             if detector.have_something():
-                all_i_per_det = np.zeros( (len(detector.boxes_cc), N_OBJECT), dtype=float)
+                all_i_per_det = np.zeros( (len(detector.boxes_cc), nbr_object), dtype=float)
                 for tid, trk in enumerate(trackers):
                     trk.decrement_timer()
                     if trk.is_active():
@@ -167,4 +164,9 @@ def object_tracking(out_path, log_path):
 # RUN
 # =====================================================================
 if __name__ == "__main__":
-    object_tracking()
+
+    obj_tracking_video = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj.mp4"
+    obj_tracking_log = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj.txt"
+
+    object_tracking(obj_tracking_video, obj_tracking_log, 
+                        N_OBJECT, OBJ_TRACKER_START_FRAME, end_frame=OBJ_TRACKER_END_FRAME)

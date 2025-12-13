@@ -51,11 +51,13 @@ def write_trajectory_txt(obj_dict, id, f):
 def interpolation_object(object_path, out_txt):
 
     f = open(out_txt, "w")
+    
+    obj_trajs = object_trajectory(object_path)
+
+    f.write(f"nbr_object : {obj_trajs.nbr_object}\n")
     f.write("Frame,ID,cx,cy,w,h\n")
 
-    obj_trajs = object_trajectory(object_path, N_OBJECT)
-
-    for i in range(N_OBJECT):
+    for i in range(obj_trajs.nbr_object):
         obj_dict = make_interpolation(obj_trajs.obj_dict[i])
         write_trajectory_txt(obj_dict, str(i), f)
 
@@ -75,7 +77,8 @@ def interpolation_wand(wand_path, out_txt):
 
 if __name__ == "__main__":
 
-    wand_tracking_log =  f"files/wand_tracking/{FILE_NAME}.txt"
-    interpolation_wand_txt = f"files/interpolation/wand_{FILE_NAME}.txt"
+    obj_tracking_log = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj.txt"
+    interpolation_obj_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj.txt"
 
-    interpolation_wand(wand_tracking_log, interpolation_wand_txt)
+    interpolation_object(obj_tracking_log, interpolation_obj_txt)
+

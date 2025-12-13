@@ -10,7 +10,7 @@ from script.CONFIG import *
 def visualizer_object(object_path, output_video):
 
     # Load logs
-    obj_trajs = object_trajectory(object_path, N_OBJECT)
+    obj_trajs = object_trajectory(object_path)
 
     print(" Loaded logs.")
 
@@ -123,11 +123,14 @@ def visualizer_combined(
     # LOAD TRAJECTORIES
     # ---------------------------------------------------------------
     wand_traj = wand_trajectory(wand_path)
-    obj_trajs = object_trajectory(object_path, 3)   # exactly 3 objects
+    obj_trajs = object_trajectory(object_path)   # need exactly 3 objects
 
     print(" Loaded logs.")
     print(f"  wand entries:   {len(wand_traj.wand_dict['frame'])}")
-    print(f"  objects tracked: 3")
+    print(f"  objects tracked: {obj_trajs.nbr_object}")
+
+    if obj_trajs.nbr_object != 3:
+        raise ValueError("Object file trajectory have not 3 objects")
 
     # ---------------------------------------------------------------
     # OPEN VIDEO

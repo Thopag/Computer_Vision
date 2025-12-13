@@ -12,10 +12,7 @@ from script.utils.box import draw_box
 #                            MAIN WAND TRACKER 
 # ============================================================================
 
-def wand_tracking(object_path, output_video, output_txt):
-
-    start_frame =  WAND_TRACKER_START_FRAME
-    end_frame = WAND_TRACKER_END_FRAME
+def wand_tracking(object_path, output_video, output_txt, start_frame, end_frame=None):
 
     cap = cv2.VideoCapture(IN_PATH)
     if not cap.isOpened():
@@ -41,7 +38,7 @@ def wand_tracking(object_path, output_video, output_txt):
     log = open(output_txt, "w")
     log.write("frame,id,cx,cy,w,h\n")
 
-    obj_trajs = object_trajectory(object_path, N_OBJECT)
+    obj_trajs = object_trajectory(object_path)
     w_detector = wand_detector(obj_trajs)
     kalman_ready = False
 
@@ -79,18 +76,19 @@ def wand_tracking(object_path, output_video, output_txt):
 
                 trk.update(best_blob)
 
-        cx,cy,w,h = trk.kf.statePost[:4].ravel()
-
-        w = max(w, MIN_W)
-        h = max(h, MIN_H)
-
         frame_with_pred = frame.copy()
-        if trk.is_active():
-            color = (0,255,0)
-            log.write(f"{frame_idx},-1,{cx},{cy},{w},{h}\n")
-        else:
-            color = (0,0,255)
-        draw_box(frame_with_pred, (cx,cy,w,h), color, f"WAND")
+        if kalman_ready:
+            cx,cy,w,h = trk.kf.statePost[:4].ravel()
+
+            w = max(w, MIN_W)
+            h = max(h, MIN_H)
+
+            if trk.is_active():
+                color = (0,255,0)
+                log.write(f"{frame_idx},-1,{cx},{cy},{w},{h}\n")
+            else:
+                color = (0,0,255)
+            draw_box(frame_with_pred, (cx,cy,w,h), color, f"WAND")
     
         writer.write(frame_with_pred)
         print(f"Frame {frame_idx}/{end_frame}", end="\r")

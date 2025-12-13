@@ -3,17 +3,18 @@ import os
 import numpy as np
 
 from script.CONFIG import *
-from script.utils.color import detect_color
+from script.utils.detection.color import detect_color
 from script.utils.mask_operation import get_overlap_componant, roi
 from script.utils.tracking.trajectory import object_trajectory
 
 def create_kernel(mask, dim, kernel_fraction):
-    kernel_er = [int(dim[0]*kernel_fraction), int(dim[1]*kernel_fraction)]
+    w, h = max(1,int(dim[0]*kernel_fraction)), max(1,int(dim[1]*kernel_fraction))
+    kernel_er = [w, h]
     adaptive_SE = cv2.getStructuringElement(cv2.MORPH_RECT,kernel_er)
     kernel = cv2.erode(mask, adaptive_SE)
     return kernel
 
-def trick1(writer, cap, nb_frame, debug=True):
+def trick1(writer, cap, nb_frame, traj_path, debug=True):
     """
     Writer the next nbr_frame in the cap, with the trick 1.
 
@@ -21,12 +22,11 @@ def trick1(writer, cap, nb_frame, debug=True):
     cap : the cap of the video
     """
 
-    log_path = f"files/trick1_logger/{FILE_NAME}.txt"
-    obj_video_path = f"files/trick1_logger/{FILE_NAME}.mp4"
-    traj_path = f"files/interpolation/groupe_11_dynamic_object.txt"
+    log_path = f"files/trick1/{FILE_NAME}.txt"
+    obj_video_path = f"files/trick1/{FILE_NAME}.mp4"
 
     log = open(log_path, "w", encoding="utf-8")
-    obj_trajs = object_trajectory(traj_path, N_OBJECT)
+    obj_trajs = object_trajectory(traj_path)
 
     log.write(f"Start trick 1 \n")
     log.write(f"With first frame = {WITH_FIRST_FRAME} \n")
@@ -83,6 +83,9 @@ def trick1(writer, cap, nb_frame, debug=True):
         valid_masks = [mask for mask in obj_masks if mask is not None]
         valid_boxes = [box for box in obj_boxes if box is not None]
 
+        log.write(f"Number of valid boxes {len(valid_boxes)}\n")
+        log.write(f"Object boxes {obj_boxes}\n")
+
         # ---- Get the corresponding kernels ---- #
 
         for mask, box in zip(valid_masks, valid_boxes):
@@ -90,7 +93,7 @@ def trick1(writer, cap, nb_frame, debug=True):
             _, _, w, h = box
             object_kernels.append(create_kernel(mask, (w,h), KERNEL_FRACTION))
         
-        for kernel in object_kernels:
+        for i, kernel in enumerate(object_kernels):
     
             # Check if overlap
             overlapping, overlap_mask = get_overlap_componant(green_mask, kernel)
@@ -98,7 +101,7 @@ def trick1(writer, cap, nb_frame, debug=True):
             if overlapping:
                 cloak_mask = cv2.add(cloak_mask, overlap_mask)
                 is_overlapping = True
-                log.write(f"Overlapping\n")
+                log.write(f"Overlapping with kernel [{i}]\n")
 
         # ---- create new frame ---- #
 

@@ -2,28 +2,12 @@
 import cv2
 import os
 import time
-from .trick1 import trick1
-#from garbage.trick2 import trick2
+from script.tricks.trick1 import trick1
 from .utils.video_splitting import get_number_of_frames
 from .CONFIG import *
 
 #----------------------------------------------
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-
-#------------------------------------------------
-# grp = 11
-# fixed = False
-
-# if fixed:
-#     t = "fixed"
-# else:
-#     t = "dynamic"
-
-# in_path  = f"../input/video_group_{grp}_{t}.mp4"
-# out_path = f"../output/main_group_{grp}_{t}.mp4"
-# txt_path = out_path[:-4] + ".txt"
-
-# json_path = f"../input/annotations_group_{grp}.json"
 
 def main() :
     start_main = time.time()
@@ -42,22 +26,16 @@ def main() :
     start = time.time()
     nbr_trick1, nbr_trick2, nbr_trick3 = get_number_of_frames(cap, JSON_PATH, FIXED)
 
+    interpolation_obj_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj.txt"
     #------------Trick1------------#
     start_1 = time.time()
 
-    blacklist = ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
-    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv']
-
-    trick1(writer, cap, nbr_trick1)
+    trick1(writer, cap, nbr_trick1, interpolation_obj_txt)
 
     end_1 = time.time()
     #------------Trick2------------#
     start_2 = time.time()
 
-    to_remove = ["person", "dining table", "sports ball",
-                    "orange", "handbag","keyboard" ]
-    read_every_x_frame = 10
-    
     #trick2(cap, writer, nbr_trick2, to_remove, read_every_x_frame, file=f)
 
     end_2 = time.time()

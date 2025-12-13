@@ -3,13 +3,16 @@ from ..box import box_to_mask
 
 class object_trajectory:
 
-    def __init__(self, path, nbr_object):
+    def __init__(self, path):
         
-        self.nbr_object = nbr_object
-        self.obj_dict =  {int(i): {"frame" : [], "cx" : [], "cy" : [], "w" : [], "h" : []} for i in range(nbr_object)}
-
         with open(path, "r") as f:
+
+            # Get the nbr of object written in the header
+            _, value = next(f).strip().split(":", 1)
+            self.nbr_object = int(value.strip())
+            self.obj_dict =  {int(i): {"frame" : [], "cx" : [], "cy" : [], "w" : [], "h" : []} for i in range(self.nbr_object)}
             next(f)
+
             for line in f:
                 frame, tid, cx, cy, w, h = line.strip().split(",")
                 frame, tid = map(int, (frame, tid))
@@ -20,6 +23,9 @@ class object_trajectory:
                 self.obj_dict[tid]["cy"].append(cy)
                 self.obj_dict[tid]["w"].append(w)
                 self.obj_dict[tid]["h"].append(h)
+    
+    def get_nbr_object(self):
+        return self.nbr_object
 
     def boxs_at_frame(self, frame_idx):
 

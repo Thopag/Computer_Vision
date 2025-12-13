@@ -1,8 +1,8 @@
 import numpy as np
 
-grp = 10
+grp = 11
 
-FIXED = False
+FIXED = True
 
 if FIXED:
     t = "fixed"
@@ -14,25 +14,34 @@ OUT_PATH = f"output/video_group_{grp}_{t}.mp4"
 JSON_PATH = f"input/annotations_group_{grp}.json"
 FILE_NAME = f"group_{grp}_{t}"
 
-N_OBJECT = 3
-# 0 : ball || 1 : bottle || 2 : obj3
-
 # -------------- YOLO -------------- #
 
 MODEL_PATH = "model/yolov8n.pt"
 READ_EVERY_X_FRAME = 1
 CONF_TRESHOLD = 0.0
 
-BLACKLIST = ['person', 'cat', 'bed', 'book', 'skateboard', 'cup', 'dining table', 'cell phone', 
-    'sink', 'frisbee', 'tennis racket', 'orange', 'handbag', 'umbrella', 'baseball bat', 'suitcase', 'refrigerator', 'cake'
-                        , 'remote', 'chair', 'traffic light', 'bird', 'tv', 'vase', 'toilet', 'laptop', 'microwave', 'surfboard']
+BLACKLIST = ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
+    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
 
 # -------------- TRACKER -------------- #
 
-OBJ_TRACKEREND_FRAME = None
+N_OBJECT = 3
+# 0 : ball || 1 : bottle || 2 : obj3
 
-WAND_TRACKER_END_FRAME = None
-WAND_TRACKER_START_FRAME = 2400
+# -- Timing -- #
+OBJ_TRACKER_START_FRAME = 420 # (14s)
+OBJ_TRACKER_END_FRAME = 2160 # (72s)
+
+OBJ_BALL_TRACKER_START_FRAME = 2340 # (78s)
+OBJ_BALL_TRACKER_END_FRAME = None
+
+WAND_2_TRACKER_START_FRAME = 1500 # (50s)
+WAND_2_TRACKER_END_FRAME = 2160 # (72s)
+
+WAND_3_TRACKER_START_FRAME = 2580 # (86s)
+WAND_3_TRACKER_END_FRAME = None
+
+# -- prediction -- #
 WAND_MAX_PRED_JUMP = 30
 
 MIN_W = 10
@@ -85,7 +94,7 @@ WITH_FIRST_FRAME = False
 
 S_DIL_CLOAK = 20
 S_ERODE_ROI = 15
-S_DIL_ROI = 15
+S_DIL_ROI = 20
 
 # -------------- TRICK 2 -------------- #
 WAND_ITER   = 3
