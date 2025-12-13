@@ -80,9 +80,21 @@ if __name__ == "__main__":
     obj_tracking_log = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj.txt"
     interpolation_obj_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj.txt"
 
-    interpolation_object(obj_tracking_log, interpolation_obj_txt)
+    #interpolation_object(obj_tracking_log, interpolation_obj_txt)
+
+    wand_2_tracking_log =  f"files/wand_tracking/{FILE_NAME}_trick2.txt"
+    interpolation_wand_2_txt = f"files/interpolation/{FILE_NAME}_wand_trick2.txt"
+
+    #interpolation_object(wand_2_tracking_log, interpolation_wand_2_txt)
+
+    # special #
 
     obj_backup_tracking_log = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj_backup.txt"
     interpolation_obj_backup_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj_backup.txt"
 
     #interpolation_object(obj_backup_tracking_log, interpolation_obj_backup_txt)
+
+    obj_static_tracking_log = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj_static.txt"
+    interpolation_static_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj_static.txt"
+
+    #interpolation_object(obj_static_tracking_log, interpolation_static_txt)

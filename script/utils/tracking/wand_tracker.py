@@ -99,12 +99,13 @@ def wand_tracking(object_path, output_video, output_txt, start_frame, end_frame=
 
 if __name__ == "__main__":
 
-    obj_tracking_log  = f"files/object_tracking/{FILE_NAME}.txt"
-    wand_tracking_vid = f"files/wand_tracking/{FILE_NAME}.mp4"
-    wand_tracking_log = f"files/wand_tracking/{FILE_NAME}.txt"
+    interpolation_obj_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj.txt"
+    wand_2_tracking_video = f"files/wand_tracking/{FILE_NAME}_trick2.mp4"
+    wand_2_tracking_log =  f"files/wand_tracking/{FILE_NAME}_trick2.txt"
+
 
     wand_tracking(
-        obj_tracking_log,
-        wand_tracking_vid,
-        wand_tracking_log,
+        interpolation_obj_txt,
+        wand_2_tracking_video,
+        wand_2_tracking_log,
     )

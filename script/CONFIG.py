@@ -2,7 +2,7 @@ import numpy as np
 
 grp = 11
 
-FIXED = False
+FIXED = True
 
 if FIXED:
     t = "fixed"
@@ -20,10 +20,10 @@ MODEL_PATH = "model/yolov8n.pt"
 READ_EVERY_X_FRAME = 1
 CONF_TRESHOLD = 0.0
 
-BLACKLIST = ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
-            'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
+BLACKLIST = ['person', 'dining table', 'sink', 'tie', 'cup', 'remote', 'skateboard', 
+        'orange', 'handbag', 'cake', 'bowl', 'frisbee', 'umbrella', 'scissors', 'vase', 'book']
 
-CONTROL_LIST = ['person']
+CONTROL_LIST = []
 
 # -------------- TRACKER -------------- #
 
@@ -31,16 +31,16 @@ N_OBJECT = 3
 # 0 : ball || 1 : bottle || 2 : obj3
 
 # -- Timing -- #
-OBJ_TRACKER_START_FRAME = 420 # (14s)
-OBJ_TRACKER_END_FRAME = 2160 # (72s)
+OBJ_TRACKER_START_FRAME = 570 # (19s)
+OBJ_TRACKER_END_FRAME = 3120 # (104s)
 
-OBJ_BALL_TRACKER_START_FRAME = 2340 # (78s)
+OBJ_BALL_TRACKER_START_FRAME = 3270 # (109s)
 OBJ_BALL_TRACKER_END_FRAME = None
 
-WAND_2_TRACKER_START_FRAME = 1500 # (50s)
-WAND_2_TRACKER_END_FRAME = 2160 # (72s)
+WAND_2_TRACKER_START_FRAME = 2310 # (77s)
+WAND_2_TRACKER_END_FRAME = 3120 # (104s)
 
-WAND_3_TRACKER_START_FRAME = 2580 # (86s)
+WAND_3_TRACKER_START_FRAME = 2720 # (124s)
 WAND_3_TRACKER_END_FRAME = None
 
 # -- prediction -- #

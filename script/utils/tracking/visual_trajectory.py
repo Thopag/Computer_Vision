@@ -111,7 +111,6 @@ def visualizer_wand(wand_path, output_video):
 # VISUALIZER Both + Generate interaction files
 # ============================================================
 def visualizer_combined(
-    video_path,
     wand_path,
     object_path,
     output_video,
@@ -135,7 +134,7 @@ def visualizer_combined(
     # ---------------------------------------------------------------
     # OPEN VIDEO
     # ---------------------------------------------------------------
-    cap = cv2.VideoCapture(video_path)
+    cap = cv2.VideoCapture(IN_PATH)
     if not cap.isOpened():
         print(" ERROR: cannot open video")
         return
@@ -167,6 +166,8 @@ def visualizer_combined(
         ok, frame = cap.read()
         if not ok:
             break
+
+        print(f"{frame_idx}/{N}", end="\r")
 
         output = frame.copy()
 
@@ -255,19 +256,23 @@ def visualizer_combined(
 # RUN
 # ============================================================
 if __name__ == "__main__":
+
+    interpolation_obj_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj.txt"
+    interpolation_wand_2_txt = f"files/interpolation/{FILE_NAME}_wand_trick2.txt"
+
+    interaction_txt = f"files/object_&_wand/{FILE_NAME}_interaction_object_&_wand.txt"
+    interaction_video = f"files/object_&_wand/{FILE_NAME}_interaction_object_&_wand.mp4"
+    output_all_objects = f"files/object_&_wand/{FILE_NAME}_all_object_&_wand.txt"
+
+    #visualizer_combined(interpolation_wand_2_txt, interpolation_obj_txt, 
+    #                        interaction_video, output_all_objects, interaction_txt)
     
-    visualizer_object(
-        object_path= f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj.txt",
-        output_video= f"files/interpolation/{FILE_NAME}_visual_object.mp4")
-    # #visualizer_wand(
-    #     wand_path=f"files/interpolation/wand_{FILE_NAME}.txt",
-    #     output_video=f"files/interpolation/visual_wand_{FILE_NAME}.mp4")
+    interpolation_static_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj_static.txt"
+    visual_obj_static = f"files/interpolation/{FILE_NAME}_visual_{N_OBJECT}_obj_static.mp4"
+
+    #visualizer_object(interpolation_static_txt, visual_obj_static)
+
+    interpolation_wand_2_txt = f"files/interpolation/{FILE_NAME}_wand_trick2.txt"
+    interpolation_wand_2_video = f"files/interpolation/{FILE_NAME}_visual_wand_trick2.mp4"
+    #visualizer_object(interpolation_wand_2_txt, interpolation_wand_2_video)
     
-    # visualizer_combined(
-    # video_path = IN_PATH,
-    # wand_path = f"files/interpolation/wand_{FILE_NAME}.txt",
-    # object_path = f"files/interpolation/object_{FILE_NAME}.txt",
-    # output_video = f"files/object_&_wand/visual_object_&_wand_{FILE_NAME}.mp4",
-    # output_all_objects  = f"files/object_&_wand/visual_object_&_wand_{FILE_NAME}.txt",
-    # output_interactions = f"files/object_&_wand/Interaction_object_&_wand_{FILE_NAME}.txt")
-    print(" Visualization complete!")

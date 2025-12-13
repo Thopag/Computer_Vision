@@ -2,7 +2,7 @@ import time
 
 from script.CONFIG import *
 from script.utils.tracking.interpolation import interpolation_object, interpolation_wand
-from script.utils.tracking.visual_trajectory import visualizer_object, visualizer_wand
+from script.utils.tracking.visual_trajectory import visualizer_object, visualizer_wand, visualizer_combined
 from script.utils.tracking.object_tracker import object_tracking
 from script.utils.tracking.wand_tracker import wand_tracking
 
@@ -37,6 +37,12 @@ wand_3_tracking_log =  f"files/wand_tracking/{FILE_NAME}_trick3.txt"
 
 interpolation_wand_3_txt = f"files/interpolation/{FILE_NAME}_wand_trick3.txt"
 interpolation_wand_3_video = f"files/interpolation/{FILE_NAME}_visual_wand_trick3.mp4"
+
+# --- interation for trick 2 --- #
+
+interaction_txt = f"files/object_&_wand/{FILE_NAME}_interaction_object_&_wand.txt"
+interaction_video = f"files/object_&_wand/{FILE_NAME}_interaction_object_&_wand.mp4"
+output_all_objects = f"files/object_&_wand/{FILE_NAME}_all_object_&_wand.txt"
 
 if __name__ == "__main__":
 
@@ -126,6 +132,13 @@ if __name__ == "__main__":
     visual_wand_3_time = time.time() - t
     print("------ End visual wand ------")
 
+    print("------ Start visual interaction ------")
+    t = time.time()
+    visualizer_combined(interpolation_wand_2_txt, interpolation_obj_txt, 
+                            interaction_video, output_all_objects, interaction_txt)
+    interation_time = time.time() - t
+    print("------ End visual interaction ------")
+
 
     end_time = time.time()
 
@@ -143,5 +156,7 @@ if __name__ == "__main__":
     print(f"Wand 3 tracking : {wank_3_track_time:.4f} seconds")
     print(f"Interpolation wand 3 : {inter_wand_3_time:.4f} seconds")
     print(f"Visual wand 3 : {visual_wand_3_time:.4f} seconds")
+
+    print(f"Visual interation : {interation_time:.4f} seconds")
     print(f"The total execution time is :{end_time-start_time:.4f}")
     print("=============================================")

@@ -154,15 +154,12 @@ def apply_sketch_effect(frame, cx, cy, w, h, frame_idx,
 # ============================================================================
 # MAIN TRICK 2  
 # ============================================================================
-def trick2(cap, writer, nb_frame,
+def trick2(cap, writer, nb_frame, frame_shift,
            object_path, interaction_path, wand_path,
-           file=None,
            debug=True):
 
-    if file:
-        file.write("Start Trick2\n")
 
-    traj = object_trajectory(object_path, 3)
+    traj = object_trajectory(object_path)
     wand = wand_trajectory(wand_path)
 
     inter = load_interactions(interaction_path)
@@ -221,7 +218,7 @@ def trick2(cap, writer, nb_frame,
 
     def print_progress(f):
         if f % 50 == 0:
-            print(f"\rProgress: {f}/{nb_frame}", end="")
+            print(f"Trick 1 progress: {(frame_idx+frame_shift)/(nb_frame+frame_shift) *100:.2f} %", end="\r")
 
     def put_overlay(img):
         if not debug:
@@ -235,7 +232,7 @@ def trick2(cap, writer, nb_frame,
     # ============================================================================
     # MAIN LOOP
     # ============================================================================
-    for frame_idx in range(nb_frame):
+    for frame_idx in range(frame_shift, nb_frame+frame_shift):
 
         print_progress(frame_idx)
 
@@ -312,9 +309,6 @@ def trick2(cap, writer, nb_frame,
             put_overlay(output)
 
         writer.write(output)
-
-    if file:
-        file.write("End Trick2\n")
 
     return 1
 

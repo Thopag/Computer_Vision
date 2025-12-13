@@ -3,6 +3,7 @@ import cv2
 import os
 import time
 from script.tricks.trick1 import trick1
+from script.tricks.trick2 import trick2
 from .utils.video_splitting import get_number_of_frames
 from .CONFIG import *
 
@@ -27,19 +28,28 @@ def main() :
     nbr_trick1, nbr_trick2, nbr_trick3 = get_number_of_frames(cap, JSON_PATH, FIXED)
 
     interpolation_obj_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj.txt"
+    interpolation_wand_2_txt = f"files/interpolation/{FILE_NAME}_wand_trick2.txt"
+    interaction_txt = f"files/object_&_wand/{FILE_NAME}_interaction_object_&_wand.txt"
+
+    debug = True
+
     #------------Trick1------------#
+    print("-------- 1 --------")
     start_1 = time.time()
 
-    trick1(writer, cap, nbr_trick1, interpolation_obj_txt)
+    trick1(writer, cap, nbr_trick1, interpolation_obj_txt, debug)
 
     end_1 = time.time()
     #------------Trick2------------#
+    print("-------- 2 --------")
     start_2 = time.time()
-
-    #trick2(cap, writer, nbr_trick2, to_remove, read_every_x_frame, file=f)
+    
+    trick2(cap, writer, nbr_trick2, nbr_trick1,
+            interpolation_obj_txt, interaction_txt, interpolation_wand_2_txt, debug)
 
     end_2 = time.time()
     #------------Trick3------------#
+    print("-------- 3 --------")
     start_3 = time.time()
 
     #trick3(cap, writer, nbr_trick3, ....)

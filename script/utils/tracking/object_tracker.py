@@ -308,8 +308,8 @@ if __name__ == "__main__":
     obj_tracking_video = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj.mp4"
     obj_tracking_log = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj.txt"
 
-    object_tracking(obj_tracking_video, obj_tracking_log, 
-                        N_OBJECT, OBJ_TRACKER_START_FRAME, end_frame=OBJ_TRACKER_END_FRAME)
+    #object_tracking(obj_tracking_video, obj_tracking_log, 
+    #                    N_OBJECT, OBJ_TRACKER_START_FRAME, end_frame=OBJ_TRACKER_END_FRAME)
     
     ball_tracking_video = f"files/object_tracking/{FILE_NAME}_ball.mp4"
     ball_tracking_log = f"files/object_tracking/{FILE_NAME}_ball.txt"
@@ -323,3 +323,9 @@ if __name__ == "__main__":
 
     #backup_tracking(obj_backup_tracking_video, obj_backup_tracking_log, N_OBJECT, 
     #                OBJ_TRACKER_START_FRAME, detect_each_x_frame, end_frame=OBJ_TRACKER_END_FRAME)
+
+    obj_static_tracking_video = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj_static.mp4"
+    obj_static_tracking_log = f"files/object_tracking/{FILE_NAME}_{N_OBJECT}_obj_static.txt"
+
+    static_tracking(obj_static_tracking_video, obj_static_tracking_log, N_OBJECT, 
+                    OBJ_TRACKER_START_FRAME, end_frame=OBJ_TRACKER_END_FRAME)
