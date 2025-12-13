@@ -161,8 +161,7 @@ cython_debug/
 
 input
 output
-files
 model
+files
 garbage
-
 .mp4

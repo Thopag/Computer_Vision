@@ -32,6 +32,7 @@ class wand_detector:
     def detect(self, frame, frame_idx):
 
         obj_boxes = self.obj_trajs.boxs_at_frame(frame_idx)
+        
         clean_frame = remove_objects(frame, obj_boxes)
         red_mask = detect_red_strict(clean_frame)
         blobs = extract_blobs(red_mask)

@@ -1,0 +1,49 @@
+Video group 11 dynamic 
+#work with this
+---------------------------------------
+LOWER_RED1 = np.array([0, 120, 60])
+UPPER_RED1 = np.array([10, 255, 255])
+
+LOWER_RED2 = np.array([170, 120, 60])
+UPPER_RED2 = np.array([180, 255, 255])
+--------------------------------------
+
+Video group 5 dynamic 
+#work with this
+---------------------------------------
+LOWER_RED1 = np.array([0, 165, 85])
+UPPER_RED1 = np.array([8, 255, 255])
+
+LOWER_RED2 = np.array([170, 165, 85])
+UPPER_RED2 = np.array([180, 255, 255])
+--------------------------------------
+
+
+LOWER_RED1 = np.array([0, 170, 90])
+UPPER_RED1 = np.array([8, 255, 255])
+
+LOWER_RED2 = np.array([172, 170, 90])
+UPPER_RED2 = np.array([180, 255, 255])
+
+# LOWER_RED1 = np.array([0, 160, 80])
+# UPPER_RED1 = np.array([8, 255, 255])
+
+# LOWER_RED2 = np.array([172, 160, 80])
+# UPPER_RED2 = np.array([180, 255, 255])
+
+
+
+# LOWER_RED1 = np.array([0, 160, 80])
+# UPPER_RED1 = np.array([8, 255, 255])
+
+# LOWER_RED2 = np.array([172, 160, 80])
+# UPPER_RED2 = np.array([180, 255, 255])
+
+
+Video group 0 dynamic 
+
+LOWER_RED1 = np.array([0, 170, 90])
+UPPER_RED1 = np.array([8, 255, 255])
+
+LOWER_RED2 = np.array([172, 180, 90])
+UPPER_RED2 = np.array([180, 255, 255])

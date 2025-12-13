@@ -37,3 +37,10 @@
 "input/video_group_11_dynamic.mp4"
 ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
     'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
+
+
+# ----------------------------------- GRP 12 ----------------------------------- #
+"input/video_group_12_dynamic.mp4"
+['person', 'backpack', 'suitcase', 'car', 'handbag', 'chair', 'skateboard', 'umbrella', 'airplane', 'boat', 
+ 'laptop', 'book', 'orange', 'potted plant', 'dining table', 'cake', 'bus', 'bed', 'cup',
+ 'tv', 'bird', 'couch', 'bench', 'snowboard', 'dog', 'cow', 'cat']
