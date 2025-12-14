@@ -4,6 +4,7 @@ import os
 import time
 from script.tricks.trick1 import trick1
 from script.tricks.trick2 import trick2
+from script.tricks.trick3 import trick3
 from .utils.video_splitting import get_number_of_frames
 from .CONFIG import *
 
@@ -31,6 +32,9 @@ def main() :
     interpolation_wand_2_txt = f"files/interpolation/{FILE_NAME}_wand_trick2.txt"
     interaction_txt = f"files/object_&_wand/{FILE_NAME}_interaction_object_&_wand.txt"
 
+    interpolation_ball_txt = f"files/interpolation/{FILE_NAME}_ball.txt"
+    interpolation_wand_3_txt = f"files/interpolation/{FILE_NAME}_wand_trick3.txt"
+
     debug = True
 
     #------------Trick1------------#
@@ -52,7 +56,8 @@ def main() :
     print("-------- 3 --------")
     start_3 = time.time()
 
-    #trick3(cap, writer, nbr_trick3, ....)
+    trick3(cap, writer, nbr_trick3, nbr_trick1+nbr_trick2,
+            interpolation_ball_txt, interpolation_wand_3_txt, debug=False)
 
     end_3 = time.time()
     #------------Finish------------#

@@ -2,7 +2,7 @@ import numpy as np
 
 grp = 11
 
-FIXED = True
+FIXED = False
 
 if FIXED:
     t = "fixed"
@@ -104,8 +104,23 @@ S_ERODE_ROI = 15
 S_DIL_ROI = 20
 
 # -------------- TRICK 2 -------------- #
+
 WAND_ITER   = 3
 WAND_DILATE = 20
 
 OBJ_ITER    = 3
 OBJ_DILATE  = 20
+
+# -------------- TRICK 3 -------------- #
+
+TRICK3_ALPHA = 0.7
+TRICK3_AMP_X = 2.0
+
+TRICK3_AMP_Y_UP   = 0.2   # wand vers le haut -> balle monte très peu
+TRICK3_AMP_Y_DOWN = 1.2   # wand vers le bas -> balle descend beaucoup
+
+TRICK3_MAX_DX = 20
+TRICK3_MAX_DY = 15
+
+TRICK3_MAX_MISSING_SEC= 1
+TRICK3_MISSING_DECAY= 0.95   # amortissement des absences de tracking

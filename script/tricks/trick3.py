@@ -1,300 +1,230 @@
 import cv2
-import os
 import numpy as np
-import math
 
-from detection.yolo_detector import YOLODetector
-from detection.magician_detector import MagicianDetector
-from script.utils.video_splitting import load_json, time_to_seconds
-
-from script.tracking.wand_tracker_florent import CONFIG, detect_red_strict, extract_red_blobs, create_kalman
-from motion.wand_motion import WandMotion
-from motion.ball_motion import BallMotion
-from motion.magician_motion import MagicianMotion
+from script.CONFIG import *
+from script.utils.tracking.trajectory import object_trajectory, wand_trajectory
 
 
-def run_trick3(video_path, json_path, output_path, fixed=True):
+def trick3(cap, writer, nb_frame, frame_shift, object_path, wand_path, debug=False):
 
-    cap = cv2.VideoCapture(video_path)
-    fps    = cap.get(cv2.CAP_PROP_FPS)
-    width  = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    # --------------------------------------------------
+    # 1) Chargement des trajectoires OFFLINE (fichiers)
+    # --------------------------------------------------
 
-   
-    # 0) Start time depuis le JSON
-   
-    start_str   = load_json(json_path, fixed, trick_id=3)
-    start_frame = int(time_to_seconds(start_str) * fps)
+    traj = object_trajectory(object_path)
+    wand = wand_trajectory(wand_path)
 
-   
-    # 1) Détecteurs YOLO
-   
-    yolo = YOLODetector("yolov8s.pt")
-    magician_detector = MagicianDetector()
+    # --------------------------------------------------
+    # 2) Paramètres Trick3 (CONFIG)
+    # --------------------------------------------------
+    alpha = TRICK3_ALPHA
 
-   
-    # Première frame pour initialiser la balle CLONÉE
-   
-    cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
-    ok, first = cap.read()
-    if not ok:
-        print(" Cannot read first frame.")
-        return
+    amp_x = TRICK3_AMP_X
+    amp_y_up   = TRICK3_AMP_Y_UP
+    amp_y_down = TRICK3_AMP_Y_DOWN
 
-    detections = yolo.detect(first)
+    max_dx = TRICK3_MAX_DX
+    max_dy = TRICK3_MAX_DY
 
-    # garder seulement sports ball + person
-    filtered = [
-        (cls, x1, y1, x2, y2, conf)
-        for (cls, x1, y1, x2, y2, conf) in detections
-        if cls.lower() in {"sports ball", "person"}
-    ]
+    # Extrapolation wand absente
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    max_missing_frames = int(TRICK3_MAX_MISSING_SEC * fps)
+    decay = TRICK3_MISSING_DECAY                       
 
-    # Balle initiale (référence)
-    ball_box   = None
-    best_conf  = 0.0
-
-    for cls, x1, y1, x2, y2, conf in filtered:
-        if cls.lower() == "sports ball" and conf > best_conf:
-            best_conf = conf
-            ball_box = (x1, y1, x2, y2)
-
-    if ball_box is None:
-        print(" Ball not found at start.")
-        return
-
-    bx1, by1, bx2, by2 = ball_box
-    bw, bh   = bx2 - bx1, by2 - by1
-
-    # position de référence (celle de YOLO au début)
-    ball_ref_x = bx1 + bw // 2
-    ball_ref_y = by1 + bh // 2
-
-    # Patch et masque de la balle (clone)
-    hsv = cv2.cvtColor(first, cv2.COLOR_BGR2HSV)
-    lower_blue = np.array([80, 80, 50])
-    upper_blue = np.array([140, 255, 255])
-    ball_mask = cv2.inRange(hsv, lower_blue, upper_blue)
-
-    roi_ball = first[by1:by1+bh, bx1:bx1+bw]
-    roi_mask = ball_mask[by1:by1+bh, bx1:bx1+bw]
-    mask_inv = cv2.bitwise_not(roi_mask)
-
-   
-    # 2) Redémarrer la vidéo à start_frame
-   
-    cap.release()
-    cap = cv2.VideoCapture(video_path)
-    cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
-
-   
-    # 3) Trackers / modele de mouvement
-   
-    kf = create_kalman(CONFIG)
-    kalman_ready = False
-
-    wand_motion      = WandMotion()
-    ball_motion      = BallMotion(0.40, 0.30)   # juste pour sx/sy
-    magician_motion  = MagicianMotion()
-
-    # offsets cumulés du CLONE par rapport à la référence
-    clone_dx = 0.0
-    clone_dy = 0.0
-
-    # pour lisser le mouvement de la wand
+    # --------------------------------------------------
+    # 3) États internes (mémoire temporelle)
+    # --------------------------------------------------
+    prev_wand = None
     prev_dx = 0.0
     prev_dy = 0.0
 
-    MAGICIAN_STABLE_THRESHOLD = 10.0  # pixels/frame
-    allow_ball_motion = False
+    last_valid_dx = 0.0
+    last_valid_dy = 0.0
+    missing_count = 0
 
-    # position actuelle du clone (initialement = référence)
-    clone_x = ball_ref_x
-    clone_y = ball_ref_y
+    clone_dx = 0.0
+    clone_dy = 0.0
 
-   
-    # 4) Sortie vidéo
-   
-    out = cv2.VideoWriter(
-        output_path,
-        cv2.VideoWriter_fourcc(*"mp4v"),
-        fps,
-        (width, height)
-    )
+    # Debug trajectoire wand
+    wand_history = []
 
-    print("\n[INFO] Trick 3 running...\n")
-
-    frame_id = start_frame
-
-   
-    # 5) BOUCLE PRINCIPALE
-   
-    while True:
+    # --------------------------------------------------
+    # 4) Boucle principale
+    # --------------------------------------------------
+    for frame_idx in range(frame_shift, nb_frame+frame_shift):
 
         ok, frame = cap.read()
         if not ok:
             break
 
-        print(f"\n========== FRAME {frame_id} ==========")
+        print(f"Trick 3 progress: {(frame_idx)/(nb_frame-frame_shift) *100:.2f} %", end="\r")
 
-        
-        # 5.1 YOLO : ball + magician (person) — DEBUG
-        
-        detections = yolo.detect(frame)
-        filtered = [
-            (cls, x1, y1, x2, y2, conf)
-            for (cls, x1, y1, x2, y2, conf) in detections
-            if cls.lower() in {"sports ball", "person"}
-        ]
+        h_img, w_img = frame.shape[:2]
 
-        # Ball réelle (pour debug, box verte)
-        yolo_ball_box = None
-        best_conf_ball = 0.0
+        # Balle et wand proviennent des trajectoires OFFLINE
+        ball_box = traj.boxs_at_frame(frame_idx)[0]
+        wand_box = wand.box_at_frame(frame_idx)
 
-        for cls, x1, y1, x2, y2, conf in filtered:
-            if cls.lower() == "sports ball" and conf > best_conf_ball:
-                best_conf_ball = conf
-                yolo_ball_box = (x1, y1, x2, y2)
+        output = frame.copy()
 
-        if yolo_ball_box:
-            x1, y1, x2, y2 = yolo_ball_box
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-            cv2.putText(frame, f"BALL (YOLO) {best_conf_ball:.2f}",
-                        (x1, y1-5), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,255,0), 1)
-            print(f"[BALL] YOLO box={yolo_ball_box} conf={best_conf_ball:.2f}")
+        # --------------------------------------------------
+        # 4.1) Mouvement wand : mesure si dispo, sinon extrapolation
+        # --------------------------------------------------
+        dx = 0.0
+        dy = 0.0
+
+        if wand_box is not None:
+            cx, cy, _, _ = wand_box
+
+            # Debug trajectoire : stocker point courant
+            if debug:
+                wand_history.append((int(cx), int(cy)))
+                if len(wand_history) > 60:
+                    wand_history.pop(0)
+
+            if prev_wand is not None:
+                raw_dx = cx - prev_wand[0]
+                raw_dy = cy - prev_wand[1]
+
+                # Anti-jump : limite les gros sauts instantanés
+                raw_dx = np.clip(raw_dx, -max_dx, max_dx)
+                raw_dy = np.clip(raw_dy, -max_dy, max_dy)
+
+                # Lissage exponentiel (mouvement plus stable)
+                dx = alpha * prev_dx + (1.0 - alpha) * raw_dx
+                dy = alpha * prev_dy + (1.0 - alpha) * raw_dy
+
+                prev_dx, prev_dy = dx, dy
+
+                # Dernière vitesse valide (sert si wand disparaît)
+                last_valid_dx = dx
+                last_valid_dy = dy
+
+            # Wand re-trouvée : on reset le compteur d'absence
+            missing_count = 0
+            prev_wand = (cx, cy)
+
         else:
-            print("[BALL] not detected by YOLO on this frame")
+            # Wand absente -> on extrapole le mouvement
+            missing_count += 1
 
-        # Magicien
-        magician_center, magician_box = magician_detector.detect(filtered)
-
-        if magician_box:
-            mx1, my1, mx2, my2 = magician_box
-            cv2.rectangle(frame, (mx1, my1), (mx2, my2), (0, 255, 255), 2)
-            cv2.putText(frame, "MAGICIAN", (mx1, my1-5),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,255,255), 2)
-
-        if magician_center:
-            mdx, mdy = magician_motion.compute(magician_center)
-            speed = math.hypot(mdx, mdy)
-            print(f"[MAGICIAN] center={magician_center} speed={speed:.2f}")
-            allow_ball_motion = speed < MAGICIAN_STABLE_THRESHOLD
-        else:
-            print("[MAGICIAN] not detected")
-            allow_ball_motion = False
-
-        print(f"[STATE] allow_ball_motion={allow_ball_motion}")
-
-        
-        # 5.2 Tracking de la wand (HSV + Kalman)
-        
-        mask_red = detect_red_strict(frame)
-        blobs    = extract_red_blobs(mask_red, CONFIG)
-
-        pred = kf.predict()
-        px, py = int(pred[0, 0]), int(pred[1, 0])
-
-        chosen = None
-        if blobs:
-            if not kalman_ready:
-                chosen = max(blobs, key=lambda b: b["area"])
-                cx, cy = chosen["center"]
-                kf.statePost = np.array([[cx], [cy], [0], [0]], dtype=np.float32)
-                kalman_ready = True
+            if missing_count <= max_missing_frames:
+                # On continue avec la dernière vitesse connue
+                dx = last_valid_dx
+                dy = last_valid_dy
             else:
-                best_d = 1e9
-                for b in blobs:
-                    cx, cy = b["center"]
-                    d = math.hypot(cx - px, cy - py)
-                    if d < best_d:
-                        best_d = d
-                        chosen = b
+                # Trop long : on amortit progressivement
+                last_valid_dx *= decay
+                last_valid_dy *= decay
+                dx = last_valid_dx
+                dy = last_valid_dy
 
-        if chosen:
-            cx, cy = chosen["center"]
-            xw, yw, ww, hw = chosen["bbox"]
-            kf.correct(np.array([[cx], [cy]], dtype=np.float32))
+        # --------------------------------------------------
+        # 4.2) Clone + inpainting de la balle
+        # --------------------------------------------------
+        if ball_box is not None:
+            bx, by, bw, bh = ball_box
 
-            cv2.rectangle(frame, (xw, yw), (xw+ww, yw+hw), (0, 0, 255), 2)
-            cv2.putText(frame, "WAND", (xw, yw-5),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0,0,255), 2)
-            print(f"[WAND] DETECTED bbox={(xw,yw,ww,hw)} center={(cx,cy)}")
-        else:
-            cx, cy = px, py
-            print(f"[WAND] LOST-> using prediction {(cx,cy)}")
+            # Sécurité bornes image
+            bx = max(0, bx)
+            by = max(0, by)
+            bw = min(bw, w_img - bx)
+            bh = min(bh, h_img - by)
 
-        
-        # 5.3 variation de la baguette -> lissé
-        
-        raw_dx, raw_dy = wand_motion.compute((cx, cy))
+            bx, by, bw, bh = map(int, (bx, by, bw, bh))
 
-        # filtrage simple
-        dx = 0.7 * prev_dx + 0.3 * raw_dx
-        dy = 0.7 * prev_dy + 0.3 * raw_dy
-        prev_dx, prev_dy = dx, dy
+            # Patch réel de la balle (clone)
+            ball_patch = frame[by:by+bh, bx:bx+bw].copy()
 
-        print(f"[MOTION] wand raw=({raw_dx},{raw_dy}) smoothed=({dx:.2f},{dy:.2f})")
+            # Supprimer la balle originale (inpainting)
+            mask = np.zeros((h_img, w_img), dtype=np.uint8)
+            cv2.rectangle(mask, (bx, by), (bx + bw, by + bh), 255, -1)
+            clean_frame = cv2.inpaint(frame, mask, 3, cv2.INPAINT_TELEA)
 
-        
-        # 5.4 Mouvement du clone de la balle
-        amplify_x = 2.0 # Amplifie la distance parcourue par la clone ball
-        amplify_y = 1.0
-        
-        old_clone_x = clone_x
-        old_clone_y = clone_y
+            # Appliquer déplacement à la balle (cumulatif)
+            clone_dx += amp_x * dx
 
-        if allow_ball_motion:
-            # on accumule le mouvement en utilisant la sensibilite
-            clone_dx += ball_motion.sx * dx * amplify_x 
-            clone_dy += ball_motion.sy * dy * amplify_y
+            if dy < 0:
+                clone_dy += amp_y_up * dy
+            else:
+                clone_dy += amp_y_down * dy
 
-        # position absolue du clone
-        clone_x = int(ball_ref_x + clone_dx)
-        clone_y = int(ball_ref_y + clone_dy)
+            bx_new = int(bx + clone_dx)
+            by_new = int(by + clone_dy)
 
-        print(f"[CLONE] offsets=({clone_dx:.1f},{clone_dy:.1f}) "
-              f"pos from ({old_clone_x},{old_clone_y}) to ({clone_x},{clone_y})")
+            # Clamp pour éviter sortir de l'image
+            bx_new = max(0, min(w_img - bw, bx_new))
+            by_new = max(0, min(h_img - bh, by_new))
 
-        
-        # 5.5 Effacer l'ancien clone
-        
-        xo = old_clone_x - bw // 2
-        yo = old_clone_y - bh // 2
+            # Coller le clone sur le fond reconstruit
+            output = clean_frame
+            output[by_new:by_new+bh, bx_new:bx_new+bw] = ball_patch
 
-        if 0 <= xo < width - bw and 0 <= yo < height - bh:
-            roi_old = frame[yo:yo+bh, xo:xo+bw]
-            roi_old_blur = cv2.GaussianBlur(roi_old, (7,7), 3)
-            mean_color = cv2.mean(roi_old_blur, mask=mask_inv)[:3]
-            frame[yo:yo+bh, xo:xo+bw] = np.full_like(roi_old, mean_color, dtype=np.uint8)
+        # --------------------------------------------------
+        # 4.3) Debug : box wand + trajectoire + info état
+        # --------------------------------------------------
+        if debug:
+            # Trajectoire wand
+            for i in range(1, len(wand_history)):
+                cv2.line(output, wand_history[i-1], wand_history[i], (255, 0, 0), 2)
 
-        
-        # 5.6 Coller le clone à la new position
-        
-        xn = clone_x - bw // 2
-        yn = clone_y - bh // 2
+            # Box wand
+            if wand_box is not None:
+                wx, wy, ww, wh = wand_box
+                cv2.rectangle(output, (wx, wy), (wx + ww, wy + wh), (0, 0, 255), 2)
 
-        if 0 <= xn < width - bw and 0 <= yn < height - bh:
-            roi_dst = frame[yn:yn+bh, xn:xn+bw]
-            bg = cv2.GaussianBlur(roi_dst, (7,7), 3)
-            bg = cv2.bitwise_and(bg, bg, mask=mask_inv)
-            fg = cv2.bitwise_and(roi_ball, roi_ball, mask=roi_mask)
-            frame[yn:yn+bh, xn:xn+bw] = cv2.add(bg, fg)
+            # Text debug
+            cv2.putText(
+                output,
+                f"dx={dx:.2f} dy={dy:.2f} missing={missing_count}",
+                (20, 40),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                0.8,
+                (0, 255, 255),
+                2
+            )
 
-        out.write(frame)
-        frame_id += 1
+        writer.write(output)
+
+    return
+
+
+# --------------------------------------------------
+# MAIN DEBUG (style Trick2)
+# --------------------------------------------------
+def main():
+
+    video_path  = IN_PATH
+    output_path = f"files/trick3/trick3_result.mp4"
+
+    cap = cv2.VideoCapture(video_path)
+    if not cap.isOpened():
+        print("ERROR: cannot open video")
+        return
+
+    fps = cap.get(cv2.CAP_PROP_FPS)
+    W   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+    H   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+    N   = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+    writer = cv2.VideoWriter(
+        output_path,
+        cv2.VideoWriter_fourcc(*"mp4v"),
+        fps,
+        (W, H)
+    )
+
+    print("Running Trick3 on", N, "frames...")
+    print("  video :", video_path)
+    print("  output:", output_path)
+
+    trick3(cap=cap, writer=writer, nb_frame=N, frame_shift=0, debug=True)
 
     cap.release()
-    out.release()
-    print("\n[INFO] Trick 3 complete.\n")
+    writer.release()
+
+    print("\nDONE! Saved to:", output_path)
 
 
 if __name__ == "__main__":
-    base = os.path.dirname(os.path.abspath(__file__))
-
-    run_trick3(
-        video_path = os.path.join(base, "data", "video_group_4_fixed.mp4"),
-        #video_path = os.path.join(base, "data", "group_11_fixed.mp4"),
-        json_path  = os.path.join(base, "utils", "annotations_group_11.json"),
-        output_path= os.path.join(base, "data", "test_trick3.mp4"),
-        fixed      = True
-    )
+    main()

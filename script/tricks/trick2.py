@@ -218,7 +218,7 @@ def trick2(cap, writer, nb_frame, frame_shift,
 
     def print_progress(f):
         if f % 50 == 0:
-            print(f"Trick 1 progress: {(frame_idx+frame_shift)/(nb_frame+frame_shift) *100:.2f} %", end="\r")
+            print(f"Trick 2 progress: {(frame_idx)/(nb_frame-frame_shift) *100:.2f} %", end="\r")
 
     def put_overlay(img):
         if not debug:
