@@ -104,8 +104,4 @@ if __name__ == "__main__":
     wand_2_tracking_log =  f"files/wand_tracking/{FILE_NAME}_trick2.txt"
 
 
-    wand_tracking(
-        interpolation_obj_txt,
-        wand_2_tracking_video,
-        wand_2_tracking_log,
-    )
+    wand_tracking(interpolation_obj_txt,wand_2_tracking_video,wand_2_tracking_log)

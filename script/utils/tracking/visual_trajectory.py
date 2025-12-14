@@ -12,8 +12,6 @@ def visualizer_object(object_path, output_video):
     # Load logs
     obj_trajs = object_trajectory(object_path)
 
-    print(" Loaded logs.")
-
     # Open video
     cap = cv2.VideoCapture(IN_PATH)
     if not cap.isOpened():
@@ -31,7 +29,6 @@ def visualizer_object(object_path, output_video):
         fps, (W, H)
     )
 
-    print(" Processing…")
 
     for frame_idx in range(N):
 
@@ -63,8 +60,6 @@ def visualizer_wand(wand_path, output_video):
     # Load logs
     wand_traj = wand_trajectory(wand_path)
 
-    print(" Loaded logs.")
-
     # Open video
     cap = cv2.VideoCapture(IN_PATH)
     if not cap.isOpened():
@@ -81,8 +76,6 @@ def visualizer_wand(wand_path, output_video):
         cv2.VideoWriter_fourcc(*"mp4v"),
         fps, (W, H)
     )
-
-    print(" Processing…")
 
     for frame_idx in range(N):
 
@@ -156,8 +149,6 @@ def visualizer_combined(
     inter_file = open(output_interactions, "w")
     inter_file.write("interaction log\n")
 
-    print(" Processing…")
-
     # ---------------------------------------------------------------
     # MAIN LOOP
     # ---------------------------------------------------------------
@@ -184,7 +175,7 @@ def visualizer_combined(
             allobj_file.write(f"{frame_idx},-1,{cx},{cy},{w},{h}\n")
 
             # Wand mask
-            wand_mask = box_to_mask(frame, cx, cy, w, h)
+            wand_mask = box_to_mask(frame, wand_box)
 
             # Expand wand mask using CONFIG constants
             wand_mask_expanded = roi(wand_mask, WAND_ITER, WAND_DILATE)
@@ -264,8 +255,8 @@ if __name__ == "__main__":
     interaction_video = f"files/object_&_wand/{FILE_NAME}_interaction_object_&_wand.mp4"
     output_all_objects = f"files/object_&_wand/{FILE_NAME}_all_object_&_wand.txt"
 
-    #visualizer_combined(interpolation_wand_2_txt, interpolation_obj_txt, 
-    #                        interaction_video, output_all_objects, interaction_txt)
+    visualizer_combined(interpolation_wand_2_txt, interpolation_obj_txt, 
+                            interaction_video, output_all_objects, interaction_txt)
     
     interpolation_static_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj_static.txt"
     visual_obj_static = f"files/interpolation/{FILE_NAME}_visual_{N_OBJECT}_obj_static.mp4"

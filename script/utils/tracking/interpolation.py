@@ -2,53 +2,81 @@ import numpy as np
 from scipy.interpolate import interp1d
 
 from .trajectory import object_trajectory, wand_trajectory
-from ...CONFIG import *
+from script.CONFIG import *
 
-def make_interpolation(obj_dict):
+def make_interpolation(traj_dict):
+    """
+    Take a trajectory dict and return the interpolated version of the dict.
 
-    frames = np.array(obj_dict["frame"], dtype=float)
-    cx = np.array(obj_dict["cx"], dtype=float)
-    cy = np.array(obj_dict["cy"], dtype=float)
-    h = np.array(obj_dict["h"], dtype=float)
-    w = np.array(obj_dict["w"], dtype=float)
+    Args:
+        traj_dict: The traj_dict to interpolate
 
+    Return:
+        The interpolated traj_dict
+    """
+
+    # Get all the values that need to be interpolated as a function of the frame
+    frames = np.array(traj_dict["frame"], dtype=float)
+    cx = np.array(traj_dict["cx"], dtype=float)
+    cy = np.array(traj_dict["cy"], dtype=float)
+    h = np.array(traj_dict["h"], dtype=float)
+    w = np.array(traj_dict["w"], dtype=float)
+
+    # Check if not empty
     if len(frames) == 0:
         print("NO TRAJECTORY")
         return None
 
+    # Make interpolation functions
     f_x = interp1d(frames, cx, kind=INTERPOLATION_TYPE)
     f_y = interp1d(frames, cy, kind=INTERPOLATION_TYPE)
     f_h = interp1d(frames, h, kind=INTERPOLATION_TYPE)
     f_w = interp1d(frames, w, kind=INTERPOLATION_TYPE)
 
+    # Create interpolated vectors
     new_frames = np.arange(frames[0], frames[-1]+1, 1, dtype=float)
     new_cx = f_x(new_frames)
     new_cy = f_y(new_frames)
     new_w = f_w(new_frames)
     new_h = f_h(new_frames)
 
-    new_obj_dict =  {"frame" : new_frames.astype(int), "cx" : new_cx.astype(int), "cy" : new_cy.astype(int), "w" : new_w.astype(int), "h" : new_h.astype(int)} 
-    return new_obj_dict
+    new_traj_dict =  {"frame" : new_frames.astype(int), "cx" : new_cx.astype(int), "cy" : new_cy.astype(int), "w" : new_w.astype(int), "h" : new_h.astype(int)} 
+    return new_traj_dict
 
-def write_trajectory_txt(obj_dict, id, f):
+def write_trajectory_txt(traj_dict, id, f):
+    """
+    Create the trajectory of the given traj dict in the file f .txt
+    
+    Args:
+        traj_dict: The dict countaining the values to write
+        id: The id given to the trajectory (obj or wand id)
+        f: The file.txt where the value are stored
+    """
 
-    if obj_dict == None:
+    if traj_dict == None:
         return
 
-    for i in range(len(obj_dict["frame"])):
+    for i in range(len(traj_dict["frame"])):
 
         tid = id
-        frame_idx = obj_dict["frame"][i]
-        cx = obj_dict["cx"][i]
-        cy = obj_dict["cy"][i]
-        w = obj_dict["w"][i]
-        h = obj_dict["h"][i]
+        frame_idx = traj_dict["frame"][i]
+        cx = traj_dict["cx"][i]
+        cy = traj_dict["cy"][i]
+        w = traj_dict["w"][i]
+        h = traj_dict["h"][i]
 
         f.write(f"{frame_idx},{tid},{cx},{cy},{w},{h}\n")
 
     return
 
 def interpolation_object(object_path, out_txt):
+    """
+    Given the object trajectory, re write a interpolate version
+
+    Args:
+        object_path: The file.txt containing the trajectories to interpolate.
+        out_txt: The output .txt
+    """
 
     f = open(out_txt, "w")
     
@@ -64,6 +92,13 @@ def interpolation_object(object_path, out_txt):
     return
 
 def interpolation_wand(wand_path, out_txt):
+    """
+    Given the wand trajectory, re write a interpolate version
+
+    Args:
+        wand_path: The file.txt containing the trajectory to interpolate.
+        out_txt: The output .txt
+    """
 
     f = open(out_txt, "w")
     f.write("Frame,ID,cx,cy,w,h\n")

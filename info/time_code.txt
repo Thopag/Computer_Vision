@@ -50,7 +50,7 @@ WAND_3_TRACKER_START_FRAME = 2720 # (124s)
 WAND_3_TRACKER_END_FRAME = None
 
 ['person', 'dining table', 'sink', 'tie', 'cup', 'remote', 'skateboard', 
-        'orange', 'handbag', 'cake', 'bowl', 'frisbee', 'umbrella', 'scissors', 'vase', 'book']
+        'handbag', 'cake', 'bowl', 'frisbee', 'umbrella', 'scissors', 'vase', 'book']
 
 
 ------------ video_group_11_dynamic ------------
