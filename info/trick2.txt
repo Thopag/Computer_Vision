@@ -1,0 +1,15 @@
+GROUP_11 fixed
+KALMAN_OBJ_TIMER = 2 
+
+WAND_MAX_PRED_JUMP = 10 #
+
+
+# -- red -- #  WAND
+LOWER_RED1 = np.array([160, 90, 40])
+UPPER_RED1 = np.array([180, 255, 255])
+
+LOWER_RED2 = np.array([170, 90, 40])
+UPPER_RED2 = np.array([180, 255, 255])
+
+RED_MEDIAN_BLUR = 5
+---------------------------------------
