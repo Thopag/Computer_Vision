@@ -4,7 +4,7 @@ from scipy.interpolate import interp1d
 from .trajectory import object_trajectory, wand_trajectory
 from script.CONFIG import *
 
-def make_interpolation(traj_dict):
+def make_interpolation(traj_dict, kind=INTERPOLATION_TYPE):
     """
     Take a trajectory dict and return the interpolated version of the dict.
 
@@ -28,10 +28,10 @@ def make_interpolation(traj_dict):
         return None
 
     # Make interpolation functions
-    f_x = interp1d(frames, cx, kind=INTERPOLATION_TYPE)
-    f_y = interp1d(frames, cy, kind=INTERPOLATION_TYPE)
-    f_h = interp1d(frames, h, kind=INTERPOLATION_TYPE)
-    f_w = interp1d(frames, w, kind=INTERPOLATION_TYPE)
+    f_x = interp1d(frames, cx, kind=kind)
+    f_y = interp1d(frames, cy, kind=kind)
+    f_h = interp1d(frames, h, kind=kind)
+    f_w = interp1d(frames, w, kind=kind)
 
     # Create interpolated vectors
     new_frames = np.arange(frames[0], frames[-1]+1, 1, dtype=float)
@@ -69,7 +69,7 @@ def write_trajectory_txt(traj_dict, id, f):
 
     return
 
-def interpolation_object(object_path, out_txt):
+def interpolation_object(object_path, out_txt, kind=INTERPOLATION_TYPE):
     """
     Given the object trajectory, re write a interpolate version
 
@@ -86,12 +86,12 @@ def interpolation_object(object_path, out_txt):
     f.write("Frame,ID,cx,cy,w,h\n")
 
     for i in range(obj_trajs.nbr_object):
-        obj_dict = make_interpolation(obj_trajs.obj_dict[i])
+        obj_dict = make_interpolation(obj_trajs.obj_dict[i], kind)
         write_trajectory_txt(obj_dict, str(i), f)
 
     return
 
-def interpolation_wand(wand_path, out_txt):
+def interpolation_wand(wand_path, out_txt, kind=INTERPOLATION_TYPE):
     """
     Given the wand trajectory, re write a interpolate version
 
@@ -105,7 +105,7 @@ def interpolation_wand(wand_path, out_txt):
 
     wand_traj = wand_trajectory(wand_path)
 
-    wand_traj = make_interpolation(wand_traj.wand_dict)
+    wand_traj = make_interpolation(wand_traj.wand_dict, kind)
     write_trajectory_txt(wand_traj, "-1", f)
 
     return 

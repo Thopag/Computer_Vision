@@ -1,8 +1,6 @@
 import numpy as np 
 
-# ===========================================================
-# GROUP consecutive frames into blocks
-# ===========================================================
+
 def group_blocks(frames):
     if not frames:
         return []
@@ -17,9 +15,6 @@ def group_blocks(frames):
     blocks.append(curr)
     return blocks
 
-# ===========================================================
-# LOAD interactions.txt
-# ===========================================================
 def load_interactions(path):
 
     inter = {0: [], 1: [], 2: []}
@@ -42,9 +37,6 @@ def load_interactions(path):
     for k in inter:
         inter[k] = sorted(inter[k])
 
-    # =======================================================
-    # APPLY FILTERING **ONLY TO BOTTLE (id = 1)**
-    # =======================================================
     bottle_frames = inter[1]
     bottle_blocks = group_blocks(bottle_frames)
 

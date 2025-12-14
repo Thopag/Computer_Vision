@@ -90,6 +90,15 @@ if __name__ == "__main__":
     visual_wand_2_time = time.time() - t
     print("------ End visual wand ------")
 
+    # --------------------------- interaction for trick 2 --------------------------- #
+
+    print("------ Start visual interaction ------")
+    t = time.time()
+    visualizer_combined(interpolation_wand_2_txt, interpolation_obj_txt, 
+                            interaction_video, output_all_objects, interaction_txt)
+    interation_time = time.time() - t
+    print("------ End visual interaction ------")
+
     # --------------------------- Objects for trick 3 (only ball) --------------------------- #
 
     print("------ Start object tracking ------")
@@ -122,7 +131,7 @@ if __name__ == "__main__":
 
     print("------ Start interpolation wand ------")
     t = time.time()
-    interpolation_wand(wand_3_tracking_log, interpolation_wand_3_txt)
+    interpolation_wand(wand_3_tracking_log, interpolation_wand_3_txt, kind='cubic')
     inter_wand_3_time = time.time() - t
     print("------ End interpolation wand ------")
 
@@ -131,13 +140,6 @@ if __name__ == "__main__":
     visualizer_wand(interpolation_wand_3_txt, interpolation_wand_3_video)
     visual_wand_3_time = time.time() - t
     print("------ End visual wand ------")
-
-    print("------ Start visual interaction ------")
-    t = time.time()
-    visualizer_combined(interpolation_wand_2_txt, interpolation_obj_txt, 
-                            interaction_video, output_all_objects, interaction_txt)
-    interation_time = time.time() - t
-    print("------ End visual interaction ------")
 
 
     end_time = time.time()

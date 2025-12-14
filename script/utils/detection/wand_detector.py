@@ -21,11 +21,14 @@ def remove_objects(frame, box_list):
         return frame
 
     clean = frame.copy()
-
     for obj_box in box_list:
 
         if obj_box:
+            _, _, w, h = obj_box
             x1, y1, x2, y2 = cxcywh_to_xyxy(obj_box)
+
+            # adaptative dilatation
+            x1, y1, x2, y2 = int(x1 - w*SCALE_FRACTION), int(y1 - h*SCALE_FRACTION), int(x2 + w*SCALE_FRACTION), int(y2 + h*SCALE_FRACTION)
             clean[y1:y2, x1:x2] = 0
 
     return clean

@@ -2,7 +2,7 @@ import numpy as np
 
 grp = 11
 
-FIXED = True
+FIXED = False
 DEBUG = True
 
 if FIXED:
@@ -32,42 +32,42 @@ ALPHA_CIOU = None
 
 CONTROL_LIST = []
 
-BLACKLIST = ['person', 'dining table', 'sink', 'tie', 'cup', 'remote', 'skateboard', 
-        'orange', 'handbag', 'cake', 'bowl', 'frisbee', 'umbrella', 'scissors', 'vase', 'book' , 'tennis racket']
+BLACKLIST = ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
+    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
 
 # -------------- TRACKER -------------- #
 
 # -- Timing -- #
 
-OBJ_TRACKER_START_FRAME = 570 # (19s)
-OBJ_TRACKER_END_FRAME = 3120 # (104s)
+OBJ_TRACKER_START_FRAME = 420 # (14s)
+OBJ_TRACKER_END_FRAME = 2160 # (72s)
 
-OBJ_BALL_TRACKER_START_FRAME = 3270 # (109s)
+OBJ_BALL_TRACKER_START_FRAME = 2340 # (78s)
 OBJ_BALL_TRACKER_END_FRAME = None
 
-WAND_2_TRACKER_START_FRAME = 2400 # (80s)
-WAND_2_TRACKER_END_FRAME = 3120 # (104s)
+WAND_2_TRACKER_START_FRAME = 1500 # (50s)
+WAND_2_TRACKER_END_FRAME = 2160 # (72s)
 
-WAND_3_TRACKER_START_FRAME = 3750 # (125s)
-WAND_3_TRACKER_END_FRAME = 3930 # (131s)
+WAND_3_TRACKER_START_FRAME = 2610 # (87s)
+WAND_3_TRACKER_END_FRAME = 2880 # (96s)
 
 # -- Kalman filter -- #
 
-WAND_MAX_PRED_JUMP = 29
-KALMAN_OBJ_TIMER = 5
+KALMAN_OBJ_TIMER = 10
 KF_OBJ_PROCESS_NOISE = 0.001
 KF_OBJ_MEASUREMENT_NOISE = 0.05
 
 KALMAN_WAND_TIMER = 10
+WAND_MAX_PRED_JUMP = 10
 KF_WAND_PROCESS_NOISE = 0.01
 KF_WAND_MEASUREMENT_NOISE = 0.05
 
 # -- red -- #
 
-LOWER_RED1 = np.array([160, 90, 40])
+LOWER_RED1 = np.array([170, 90, 50])
 UPPER_RED1 = np.array([180, 255, 255])
 
-LOWER_RED2 = np.array([170, 90, 40])
+LOWER_RED2 = np.array([170, 90, 50])
 UPPER_RED2 = np.array([180, 255, 255])
 
 RED_MEDIAN_BLUR = 5
@@ -81,7 +81,7 @@ TUNNING_GREEN = 35
 
 # -- remove object -- #
 
-SCALE_FRACTION = 0.01
+SCALE_FRACTION = 0.025
 
 # -- blob -- #
 
@@ -121,8 +121,8 @@ OBJ_DILATE  = 20
 TRICK3_ALPHA = 0.7              # smoothing
 
 TRICK3_AMP_X = 1.0              # horizontal influence
-TRICK3_AMP_Y_UP   = 0.3         # vertical up influence
-TRICK3_AMP_Y_DOWN = 1.5         # vertical down influence 
+TRICK3_AMP_Y_UP   = 0.5         # vertical up influence
+TRICK3_AMP_Y_DOWN = 0.9         # vertical down influence 
 
 TRICK3_MAX_DX = 20               # max horizontal wand movement per frame
 TRICK3_MAX_DY = 15               # max vertical wand movement per frame

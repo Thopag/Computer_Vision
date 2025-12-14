@@ -9,7 +9,7 @@ from ..detection.yolo_detector import yolo_detector
 clicks = []
 current_frame = None
 
-def mouse_callback(event, x, y):
+def mouse_callback(event, x, y, flags, param):
     """
     Function to collect the coord of the click on the showed frame
     """

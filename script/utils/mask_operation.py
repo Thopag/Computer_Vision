@@ -64,7 +64,6 @@ def get_overlap_componant(cover_mask, covered_mask):
 
 def roi(mask, s_erod, s_dil):
     """
-    # could add directly the mask as input
     Create a region of interest mask based
 
     s_erod: size for erosion
