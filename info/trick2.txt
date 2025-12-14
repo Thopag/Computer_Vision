@@ -1,8 +1,16 @@
-GROUP_11 fixed
-KALMAN_OBJ_TIMER = 2 
+GROUP_11  Fixed
 
-WAND_MAX_PRED_JUMP = 10 #
+WAND_2_TRACKER_START_FRAME = 2400 # (77s)
+WAND_2_TRACKER_END_FRAME = 3120 # (104s)
 
+------object-------------
+KALMAN_OBJ_TIMER = 0
+KF_OBJ_PROCESS_NOISE = 0.001
+KF_OBJ_MEASUREMENT_NOISE = 0.05
+ ------wand------------------
+ KALMAN_WAND_TIMER = 10
+KF_WAND_PROCESS_NOISE = 0.01
+KF_WAND_MEASUREMENT_NOISE = 0.05
 
 # -- red -- #  WAND
 LOWER_RED1 = np.array([160, 90, 40])
@@ -13,3 +21,31 @@ UPPER_RED2 = np.array([180, 255, 255])
 
 RED_MEDIAN_BLUR = 5
 ---------------------------------------
+
+
+
+Video group 11 dynamic 
+#work with this
+
+KALMAN_OBJ_TIMER = 15
+KF_OBJ_PROCESS_NOISE = 0.001
+KF_OBJ_MEASUREMENT_NOISE = 0.05
+ ------wand------------------
+WAND_MAX_PRED_JUMP = 30
+KALMAN_WAND_TIMER = 15
+KF_WAND_PROCESS_NOISE = 1.0
+KF_WAND_MEASUREMENT_NOISE = 2.0
+---------------------------------------
+LOWER_RED1 = np.array([0, 120, 60])
+UPPER_RED1 = np.array([10, 255, 255])
+
+LOWER_RED2 = np.array([170, 120, 60])
+UPPER_RED2 = np.array([180, 255, 255])
+--------------------------------------
+
+
+
+garbage gr11 fixed 
+WAND_MAX_PRED_JUMP = 10 #
+KF_WAND_PROCESS_NOISE = 1.2
+KF_WAND_MEASUREMENT_NOISE = 1.0

@@ -108,4 +108,6 @@ if __name__ == "__main__":
         interpolation_obj_txt,
         wand_2_tracking_video,
         wand_2_tracking_log,
+        start_frame=WAND_2_TRACKER_START_FRAME ,
+        end_frame= WAND_2_TRACKER_END_FRAME
     )
