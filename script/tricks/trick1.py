@@ -8,6 +8,18 @@ from script.utils.mask_operation import get_overlap_componant, roi
 from script.utils.tracking.trajectory import object_trajectory
 
 def create_kernel(mask, dim, kernel_fraction):
+    """
+    Create the kernel mask of the given object
+
+    Args:
+        mask: The mask of the object
+        dim: The dimention (w,h) of the bounding box of the object
+        kernel_fraction: The fraction of the object that is 
+                        remove to create the kernel (how much it is "shrink")
+
+    Return:
+        The mask of the kernel
+    """
     w, h = max(1,int(dim[0]*kernel_fraction)), max(1,int(dim[1]*kernel_fraction))
     kernel_er = [w, h]
     adaptive_SE = cv2.getStructuringElement(cv2.MORPH_RECT,kernel_er)
@@ -16,10 +28,13 @@ def create_kernel(mask, dim, kernel_fraction):
 
 def trick1(writer, cap, nb_frame, traj_path, debug=True):
     """
-    Writer the next nbr_frame in the cap, with the trick 1.
+    Write the next nbr_frame in the cap, with the trick 1 effect.
 
-    writer : writer of the output video
-    cap : the cap of the video
+    Args:
+        writer : writer of the output video
+        cap : the cap of the video
+        traj_path : the object trajectory .txt
+        debug : Bool to make the debugging video or not
     """
 
     log_path = f"files/trick1/{FILE_NAME}.txt"
@@ -37,17 +52,17 @@ def trick1(writer, cap, nb_frame, traj_path, debug=True):
     h   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
 
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    writer_objects = cv2.VideoWriter(obj_video_path, fourcc, fps, (w, h))
+    writer_debug = cv2.VideoWriter(obj_video_path, fourcc, fps, (w, h))
 
     ok, first_frame = cap.read()
     if not ok:
         print("no frames")
 
-    # Use to show object kernels in memory video
+    # Use to show object kernels in debugging video
     red_overlay = np.zeros_like(first_frame)
     red_overlay[:, :] = (0, 0, 255)
 
-    # Use to show object kernels in memory video
+    # Use to show green object in debugging video
     green_overlay = np.zeros_like(first_frame)
     green_overlay[:, :] = (0, 255, 0)
 
@@ -71,12 +86,13 @@ def trick1(writer, cap, nb_frame, traj_path, debug=True):
         # Filter the parasitic green pixels
         green_mask = roi(green_mask, S_ERODE_ROI, S_DIL_ROI)
 
+        # Filter the parasitic green pixels
         cloak_mask = np.zeros_like(frame[:,:,1])
         is_overlapping = False
         object_kernels.clear()
 
         # ---- Get the objects ---- #
-            
+
         obj_masks = obj_trajs.masks_at_frame(frame_idx, frame)
         obj_boxes = obj_trajs.boxs_at_frame(frame_idx)
 
@@ -92,10 +108,11 @@ def trick1(writer, cap, nb_frame, traj_path, debug=True):
 
             _, _, w, h = box
             object_kernels.append(create_kernel(mask, (w,h), KERNEL_FRACTION))
-        
+
+        # ---- Look at overlap on the kernels ---- #
+
         for i, kernel in enumerate(object_kernels):
-    
-            # Check if overlap
+
             overlapping, overlap_mask = get_overlap_componant(green_mask, kernel)
 
             if overlapping:
@@ -105,7 +122,6 @@ def trick1(writer, cap, nb_frame, traj_path, debug=True):
 
         # ---- create new frame ---- #
 
-        
         if is_overlapping:
 
             # Small dilatation to take the cloak edges 
@@ -116,6 +132,7 @@ def trick1(writer, cap, nb_frame, traj_path, debug=True):
             visible_environment_mask = cv2.bitwise_not(cloak_mask)
             visible_environment = cv2.bitwise_and(frame, frame, mask=visible_environment_mask)
 
+            # Type of invisibility
             if WITH_FIRST_FRAME:
                 invisible_cloak = cv2.bitwise_and(first_frame, first_frame, mask=cloak_mask)
                 output_frame = cv2.add(visible_environment, invisible_cloak)
@@ -150,7 +167,7 @@ def trick1(writer, cap, nb_frame, traj_path, debug=True):
                 alpha = 0.35
                 green_kernels = cv2.addWeighted(obj_frame, 1 - alpha, green_overlay, alpha, 0)
                 obj_frame = np.where(green_mask[..., None] > 0, green_kernels, obj_frame)
-                
+
             else:
                 obj_frame = np.zeros_like(frame)
 
@@ -158,11 +175,11 @@ def trick1(writer, cap, nb_frame, traj_path, debug=True):
                 green_kernels = cv2.addWeighted(obj_frame, 1 - alpha, green_overlay, alpha, 0)
                 obj_frame = np.where(green_mask[..., None] > 0, green_kernels, obj_frame)
 
-            writer_objects.write(obj_frame)
+            writer_debug.write(obj_frame)
 
         writer.write(output_frame)
 
     log.write(f"End trick 1 \n")
-    writer_objects.release()
+    writer_debug.release()
 
     return

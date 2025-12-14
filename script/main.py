@@ -25,7 +25,6 @@ def main() :
     fourcc = cv2.VideoWriter_fourcc(*"mp4v") 
     writer = cv2.VideoWriter(OUT_PATH, fourcc, fps, (w, h))
 
-    start = time.time()
     nbr_trick1, nbr_trick2, nbr_trick3 = get_number_of_frames(cap, JSON_PATH, FIXED)
 
     interpolation_obj_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj.txt"
