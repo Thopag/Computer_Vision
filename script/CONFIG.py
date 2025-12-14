@@ -1,6 +1,6 @@
 import numpy as np
 
-grp = 5
+grp = 11
 
 FIXED = True
 
@@ -68,11 +68,10 @@ UPPER_GREEN = [255,255]
 TUNNING_GREEN = 35
 
 # -- red -- #
+LOWER_RED1 = np.array([0, 120, 60])
+UPPER_RED1 = np.array([10, 255, 255])
 
-LOWER_RED1 = np.array([0, 165, 85])
-UPPER_RED1 = np.array([8, 255, 255])
-
-LOWER_RED2 = np.array([170, 165, 85])
+LOWER_RED2 = np.array([170, 120, 60])
 UPPER_RED2 = np.array([180, 255, 255])
 
 RED_MEDIAN_BLUR = 5

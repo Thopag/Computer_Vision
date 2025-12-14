@@ -6,7 +6,8 @@ UPPER_RED1 = np.array([10, 255, 255])
 
 LOWER_RED2 = np.array([170, 120, 60])
 UPPER_RED2 = np.array([180, 255, 255])
---------------------------------------
+-------------------------------------- 
+plus bas c'est plus agressive 
 
 Video group 5 dynamic 
 #work with this
