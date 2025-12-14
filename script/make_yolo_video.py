@@ -84,5 +84,5 @@ def yolo_video(in_path=IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist
 
 if __name__ == "__main__":
 
-    yolo_video(IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist=[], control_list=CONTROL_LIST, 
-               confidence_threshold=CONF_TRESHOLD, start_frame=900, end_frame=1500)
+    yolo_video(IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist=BLACKLIST, control_list=CONTROL_LIST, 
+               confidence_threshold=CONF_TRESHOLD, start_frame=1650 + OBJ_TRACKER_START_FRAME , end_frame=1950 + OBJ_TRACKER_START_FRAME )

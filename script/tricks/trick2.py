@@ -76,6 +76,8 @@ def place_mask_on_frame(mask_crop, frame_shape, cx, cy, w, h):
 # EFFECT FUNCTIONS
 # ============================================================================
 def apply_ball_color(frame, ball_box, count):
+    """_summary_ :  Apply the ball changing color effect
+    """
     cx, cy, w, h = ball_box
     mask = box_to_mask(frame, cx, cy, w, h)
 
