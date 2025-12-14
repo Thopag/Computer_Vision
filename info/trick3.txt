@@ -24,15 +24,19 @@ Pixel at (471,143)  FRONT
 
 
  ------wand------------------
- KALMAN_WAND_TIMER = 10
+KALMAN_WAND_TIMER = 10
+WAND_MAX_PRED_JUMP = 10
 KF_WAND_PROCESS_NOISE = 0.01
 KF_WAND_MEASUREMENT_NOISE = 0.05
 
-# -- red -- #  WAND
-LOWER_RED1 = np.array([0, 90, 40])
-UPPER_RED1 = np.array([3, 255, 255])
 
-LOWER_RED2 = np.array([170, 90, 40])
+LOWER_RED1 = np.array([170, 90, 50])
+UPPER_RED1 = np.array([180, 255, 255])
+
+LOWER_RED2 = np.array([170, 90, 50])
 UPPER_RED2 = np.array([180, 255, 255])
+
+RED_MEDIAN_BLUR = 5
+
 
 RED_MEDIAN_BLUR = 5
