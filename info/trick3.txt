@@ -1,42 +1,18 @@
-COLOR PIPETTE
 
-Pixel at (471,622)     WAND
-  BGR = (59, 55, 130)
-  HSV = (178, 147, 130)
-------------------------------
-Pixel at (593,397)     WAND
-  BGR = (128, 132, 185)
-  HSV = (2, 79, 185)
-------------------------------
-Pixel at (473,621)     WAND
-  BGR = (105, 102, 173)
-  HSV = (179, 105, 173)
+------------------ GROUP_11  dynamic ------------------
 
+------ wand ------
 
-Pixel at (448,430)   PULL
-  BGR = (85, 97, 143)
-  HSV = (6, 103, 143)
-------------------------------
-Pixel at (471,143)  FRONT
-  BGR = (21, 28, 58)
-  HSV = (6, 163, 58)
------------------------------
-
-
- ------wand------------------
 KALMAN_WAND_TIMER = 10
 WAND_MAX_PRED_JUMP = 10
 KF_WAND_PROCESS_NOISE = 0.01
 KF_WAND_MEASUREMENT_NOISE = 0.05
 
-
+------ red ------
 LOWER_RED1 = np.array([170, 90, 50])
 UPPER_RED1 = np.array([180, 255, 255])
 
 LOWER_RED2 = np.array([170, 90, 50])
 UPPER_RED2 = np.array([180, 255, 255])
-
-RED_MEDIAN_BLUR = 5
-
 
 RED_MEDIAN_BLUR = 5

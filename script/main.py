@@ -8,9 +8,6 @@ from script.tricks.trick3 import trick3
 from .utils.video_splitting import get_number_of_frames
 from .CONFIG import *
 
-#----------------------------------------------
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-
 def main() :
     start_main = time.time()
     cap = cv2.VideoCapture(IN_PATH)

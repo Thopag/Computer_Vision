@@ -7,7 +7,6 @@ from .trajectory import object_trajectory
 from script.utils.detection.wand_detector import wand_detector
 from script.utils.box import draw_box
 
-
 def wand_tracking(object_path, output_video, output_txt, start_frame, end_frame=None):
 
     cap = cv2.VideoCapture(IN_PATH)

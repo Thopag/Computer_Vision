@@ -1,0 +1,14 @@
+
+------------ video_group_11_static ------------
+
+BLACKLIST = ['person', 'dining table', 'sink', 'tie', 'cup', 'remote', 'skateboard', 
+        'orange', 'handbag', 'cake', 'bowl', 'frisbee', 'umbrella', 'scissors', 'vase', 'book' , 'tennis racket']
+
+CONTROL_LIST = []
+
+------------ video_group_11_dynamic ------------
+
+BLACKLIST = ['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
+    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
+
+CONTROL_LIST = []

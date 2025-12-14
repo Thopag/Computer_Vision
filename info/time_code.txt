@@ -12,7 +12,42 @@ WAND_2_TRACKER_END_FRAME = x # (x s)
 WAND_3_TRACKER_START_FRAME = x # (x s)
 WAND_3_TRACKER_END_FRAME = None
 
+------------ video_group_11_static ------------
+
+fps = 30
+
+OBJ_TRACKER_START_FRAME = 570 # (19s)
+OBJ_TRACKER_END_FRAME = 3120 # (104s)
+
+OBJ_BALL_TRACKER_START_FRAME = 3270 # (109s)
+OBJ_BALL_TRACKER_END_FRAME = None
+
+WAND_2_TRACKER_START_FRAME = 2310 # (77s)
+WAND_2_TRACKER_END_FRAME = 3120 # (104s)
+
+WAND_3_TRACKER_START_FRAME = 2720 # (124s)
+WAND_3_TRACKER_END_FRAME = None
+
+------------ video_group_11_dynamic ------------
+
+fps = 30
+
+OBJ_TRACKER_START_FRAME = 420 # (14s)
+OBJ_TRACKER_END_FRAME = 2160 # (72s)
+
+OBJ_BALL_TRACKER_START_FRAME = 2340 # (78s)
+OBJ_BALL_TRACKER_END_FRAME = None
+
+WAND_2_TRACKER_START_FRAME = 1500 # (50s)
+WAND_2_TRACKER_END_FRAME = 2160 # (72s)
+
+WAND_3_TRACKER_START_FRAME = 2580 # (86s)
+WAND_3_TRACKER_END_FRAME = None
+
+
 ------------ video_group_0_dynamic ------------
+
+# Not perfect 
 
 fps = 60
 
@@ -31,43 +66,3 @@ WAND_3_TRACKER_END_FRAME = None
 ['dining table', 'tv', 'book', 'chair', 'cell phone', 'laptop', 'train', 'skateboard', 'bench',
                     'tie', 'suitcase', 'cake', 'bed', 'kite', 'umbrella', 'handbag', 'airplane', 'bird', 
                 'snowboard', 'backpack', 'frisbee', 'microwave', 'tennis racket', 'toothbrush', 'refrigerator', 'scissors', 'remote', 'fork', 'vase']
-
-
------------- video_group_11_static ------------
-
-fps = 30
-
-OBJ_TRACKER_START_FRAME = 570 # (19s)
-OBJ_TRACKER_END_FRAME = 3120 # (104s)
-
-OBJ_BALL_TRACKER_START_FRAME = 3270 # (109s)
-OBJ_BALL_TRACKER_END_FRAME = None
-
-WAND_2_TRACKER_START_FRAME = 2310 # (77s)
-WAND_2_TRACKER_END_FRAME = 3120 # (104s)
-
-WAND_3_TRACKER_START_FRAME = 2720 # (124s)
-WAND_3_TRACKER_END_FRAME = None
-
-['person', 'dining table', 'sink', 'tie', 'cup', 'remote', 'skateboard', 
-        'orange', 'handbag', 'cake', 'bowl', 'frisbee', 'umbrella', 'scissors', 'vase', 'book' , 'tennis racket']
-
-
------------- video_group_11_dynamic ------------
-
-fps = 30
-
-OBJ_TRACKER_START_FRAME = 420 # (14s)
-OBJ_TRACKER_END_FRAME = 2160 # (72s)
-
-OBJ_BALL_TRACKER_START_FRAME = 2340 # (78s)
-OBJ_BALL_TRACKER_END_FRAME = None
-
-WAND_2_TRACKER_START_FRAME = 1500 # (50s)
-WAND_2_TRACKER_END_FRAME = 2160 # (72s)
-
-WAND_3_TRACKER_START_FRAME = 2580 # (86s)
-WAND_3_TRACKER_END_FRAME = None
-
-['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
-    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]

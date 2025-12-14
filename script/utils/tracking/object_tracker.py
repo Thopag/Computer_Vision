@@ -8,9 +8,6 @@ from ..detection.yolo_detector import yolo_detector
 
 os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 
-# =====================================================================
-# MOUSE CLICK SELECTION
-# =====================================================================
 clicks = []
 current_frame = None
 

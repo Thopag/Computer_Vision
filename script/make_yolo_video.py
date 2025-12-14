@@ -4,7 +4,6 @@ import os
 from .utils.detection.yolo_detector import yolo_detector
 from .CONFIG import *
 
-
 def yolo_video(in_path=IN_PATH, read_every_x_frame=READ_EVERY_X_FRAME, blacklist=BLACKLIST, control_list=CONTROL_LIST, 
                confidence_threshold=CONF_TRESHOLD, start_frame=None, end_frame=None):
 
