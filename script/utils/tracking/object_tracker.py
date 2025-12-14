@@ -6,8 +6,6 @@ from ..box import xyxy_to_cxcywh, cxcywh_to_xyxy, ciou, draw_box
 from ...CONFIG import *
 from ..detection.yolo_detector import yolo_detector
 
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-
 clicks = []
 current_frame = None
 
