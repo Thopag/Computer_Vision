@@ -218,7 +218,10 @@ def main():
     print("  video :", video_path)
     print("  output:", output_path)
 
-    trick3(cap=cap, writer=writer, nb_frame=N, frame_shift=0, debug=True)
+    interpolation_ball_txt = f"files/interpolation/{FILE_NAME}_ball.txt"
+    interpolation_wand_3_txt = f"files/interpolation/{FILE_NAME}_wand_trick3.txt"
+
+    trick3(cap=cap, writer=writer, nb_frame=N, frame_shift=0, object_path=interpolation_ball_txt, wand_path=interpolation_wand_3_txt, debug=True)
 
     cap.release()
     writer.release()
