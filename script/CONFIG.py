@@ -23,29 +23,28 @@ MODEL_PATH = "model/yolov8n.pt"
 READ_EVERY_X_FRAME = 1
 CONF_TRESHOLD = 0.0
 
-BLACKLIST =['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
-    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
-
+BLACKLIST = ['dining table', 'person', 'remote', 'handbag', 'cake', 'frisbee', 'cup', 'tie', 'sink', 'skateboard']
 
 
 # -------------- TRACKER -------------- #
 
-OBJ_TRACKEREND_FRAME = None
+OBJ_TRACKEREND_FRAME = 3248
 
-WAND_TRACKER_END_FRAME = None
-WAND_TRACKER_START_FRAME = 1170 #1615
-WAND_MAX_PRED_JUMP = 30 # was 30 for gr11
+WAND_TRACKER_START_FRAME = 2370 #1615
+WAND_TRACKER_END_FRAME = 3210
+
+WAND_MAX_PRED_JUMP = 10 # was 30 for gr11
 
 MIN_W = 10
 MIN_H = 10
 
 # -- Kalman filter -- #
 
-KALMAN_OBJ_TIMER = 15
+KALMAN_OBJ_TIMER = 2
 
-KALMAN_WAND_TIMER = 15
-KF_WAND_PROCESS_NOISE = 1.0
-KF_WAND_MEASUREMENT_NOISE = 2.0
+KALMAN_WAND_TIMER = 30
+KF_WAND_PROCESS_NOISE = 1.2
+KF_WAND_MEASUREMENT_NOISE = 1.0
 
 # -- interpolation -- #
 
@@ -68,10 +67,10 @@ UPPER_GREEN = [255,255]
 TUNNING_GREEN = 35
 
 # -- red -- #
-LOWER_RED1 = np.array([0, 120, 60])
-UPPER_RED1 = np.array([10, 255, 255])
+LOWER_RED1 = np.array([160, 90, 40])
+UPPER_RED1 = np.array([180, 255, 255])
 
-LOWER_RED2 = np.array([170, 120, 60])
+LOWER_RED2 = np.array([170, 90, 40])
 UPPER_RED2 = np.array([180, 255, 255])
 
 RED_MEDIAN_BLUR = 5
