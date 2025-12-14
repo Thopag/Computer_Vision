@@ -15,7 +15,7 @@ def detect_color(image, color ,lower,upper, tuning=25):
 
     Returns:
         (np.array): mask corresponding to the detected color
-        
+
     """
     lower_s = lower[0]
     lower_v = lower[1]
@@ -35,7 +35,24 @@ def detect_color(image, color ,lower,upper, tuning=25):
     mask = cv2.inRange(hsv, lower, upper)
     return mask
 
+def detect_green(image):
+    """
+    Use detect_color() with the CONFIG that aims to detect green.
+    """
+    return detect_color(image, GREEN, LOWER_GREEN, UPPER_GREEN, TUNNING_GREEN)
+
 def detect_red_strict(image):
+    """
+    Detect a specific color more strictly by using two ranges of HSV values.
+    These ranges come from the CONFIG.py file.
+
+    Args:
+        image (np.array) : and input image in BGR format
+
+    Returns:
+        (np.array): mask corresponding to the detected color
+        
+    """
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
     mask1 = cv2.inRange(hsv, LOWER_RED1, UPPER_RED1)
@@ -43,8 +60,8 @@ def detect_red_strict(image):
 
     mask = cv2.bitwise_or(mask1, mask2)
     mask = cv2.medianBlur(mask, RED_MEDIAN_BLUR)
-    return mask
 
+    return mask
 
 def change_color_mask(image, orig_rgb, target_rgb, mask):
     """
@@ -74,7 +91,7 @@ def change_color_mask(image, orig_rgb, target_rgb, mask):
     s = np.clip(s.astype(np.int16) + delta_s, 0, 255).astype(np.uint8)
     v = np.clip(v.astype(np.int16) + delta_v, 0, 255).astype(np.uint8)
 
-    
+
     hsv_shifted = cv2.merge([h, s, v])
     bgr_shifted = cv2.cvtColor(hsv_shifted, cv2.COLOR_HSV2BGR)
     
@@ -84,38 +101,3 @@ def change_color_mask(image, orig_rgb, target_rgb, mask):
     )
     return result
 
-def get_color_on_video(in_path, color, lower, upper, tuning=25, fraction= 1, out_path=None):
-
-    cap = cv2.VideoCapture(in_path)
-    if not out_path:
-        file_name = os.path.basename(in_path)[:-4]
-        out_path = f"../output/color.mp4"
-
-    #------------Set up------------#
-
-    if not cap.isOpened():
-        raise IOError(f"Could not open {in_path}")
-    fps = cap.get(cv2.CAP_PROP_FPS)
-    w   = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
-    h   = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
-    total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) * fraction)
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v") 
-    writer = cv2.VideoWriter(out_path, fourcc, fps, (w, h))
-
-    for frame_idx in range(total_frames):
-
-        ok, frame = cap.read()
-        if not ok:
-            break
-        
-        print(f"Progress: {(frame_idx)/(total_frames) *100:.2f} %", end="\r")
-
-        green_mask = detect_color(frame, color, lower, upper, tuning)
-        green_pixels = cv2.bitwise_and(frame, frame, mask=green_mask)
-
-        writer.write(green_pixels)
-
-    cap.release()
-    writer.release()
-
-    return

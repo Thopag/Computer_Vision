@@ -3,7 +3,7 @@ import os
 import numpy as np
 
 from script.CONFIG import *
-from script.utils.detection.color import detect_color
+from script.utils.detection.color import detect_green
 from script.utils.mask_operation import get_overlap_componant, roi
 from script.utils.tracking.trajectory import object_trajectory
 
@@ -66,7 +66,7 @@ def trick1(writer, cap, nb_frame, traj_path, debug=True):
         log.write(f"\n   Trick 1 at {frame_idx/fps:.3f} s ({(frame_idx)/(nb_frame) *100:.2f} %)\n")
 
         # Get the green mask
-        green_mask = detect_color(frame, GREEN, LOWER_GREEN, UPPER_GREEN, tuning=TUNNING_GREEN)
+        green_mask = detect_green(frame)
 
         # Filter the parasitic green pixels
         green_mask = roi(green_mask, S_ERODE_ROI, S_DIL_ROI)
