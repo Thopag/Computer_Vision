@@ -85,10 +85,10 @@ TUNNING_GREEN = 35
 
 # -- red -- #
 
-LOWER_RED1 = np.array([160, 90, 40])
+LOWER_RED1 = np.array([170, 90, 50])
 UPPER_RED1 = np.array([180, 255, 255])
 
-LOWER_RED2 = np.array([170, 90, 40])
+LOWER_RED2 = np.array([170, 90, 50])
 UPPER_RED2 = np.array([180, 255, 255])
 
 RED_MEDIAN_BLUR = 5
