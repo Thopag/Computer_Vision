@@ -7,7 +7,6 @@ from .trajectory import object_trajectory
 from script.utils.detection.wand_detector import wand_detector
 from script.utils.box import draw_box
 
-
 def wand_tracking(object_path, output_video, output_txt, start_frame, end_frame=None):
 
     cap = cv2.VideoCapture(IN_PATH)
@@ -37,8 +36,6 @@ def wand_tracking(object_path, output_video, output_txt, start_frame, end_frame=
     obj_trajs = object_trajectory(object_path)
     w_detector = wand_detector(obj_trajs)
     kalman_ready = False
-
-    print("Tracking wand...")
 
     for frame_idx in range(start_frame, end_frame+1):
 
@@ -76,6 +73,7 @@ def wand_tracking(object_path, output_video, output_txt, start_frame, end_frame=
         if kalman_ready:
             cx,cy,w,h = trk.kf.statePost[:4].ravel()
 
+            # To avoid prediction with negatif or null w or h
             w = max(w, MIN_W)
             h = max(h, MIN_H)
 
@@ -93,21 +91,28 @@ def wand_tracking(object_path, output_video, output_txt, start_frame, end_frame=
     writer.release()
     log.close()
 
-# ============================================================================
-# RUN
-# ============================================================================
-
 if __name__ == "__main__":
 
     interpolation_obj_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj.txt"
     wand_2_tracking_video = f"files/wand_tracking/{FILE_NAME}_trick2.mp4"
     wand_2_tracking_log =  f"files/wand_tracking/{FILE_NAME}_trick2.txt"
 
+    # wand_tracking(
+    #     interpolation_obj_txt,
+    #     wand_2_tracking_video,
+    #     wand_2_tracking_log,
+    #     start_frame=WAND_2_TRACKER_START_FRAME ,
+    #     end_frame= WAND_2_TRACKER_END_FRAME
+    # )
 
-    wand_tracking(
-        interpolation_obj_txt,
-        wand_2_tracking_video,
-        wand_2_tracking_log,
-        start_frame=WAND_2_TRACKER_START_FRAME ,
-        end_frame= WAND_2_TRACKER_END_FRAME
-    )
+    interpolation_obj_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj.txt"
+    wand_3_tracking_video = f"files/wand_tracking/{FILE_NAME}_trick3.mp4"
+    wand_3_tracking_log =  f"files/wand_tracking/{FILE_NAME}_trick3.txt"
+
+    # wand_tracking(
+    #     interpolation_obj_txt,
+    #     wand_3_tracking_video,
+    #     wand_3_tracking_log,
+    #     start_frame=WAND_3_TRACKER_START_FRAME ,
+    #     end_frame= WAND_3_TRACKER_END_FRAME
+    # )

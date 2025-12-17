@@ -3,7 +3,7 @@ import os
 import numpy as np
 from script.CONFIG import *
 
-def detect_color(image, color ,lower,upper, tuning=25):
+def detect_color(image, color, lower, upper, tuning=25):
     """
     Detect a specific color in an image and create a mask.
 
@@ -74,7 +74,7 @@ def change_color_mask(image, orig_rgb, target_rgb, mask):
         mask (np.array) :  The mask to be used to change the color
     Returns:
         (np.array): image with the color changed in BGR format
-        """
+    """
     hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
     orig_hsv = cv2.cvtColor(np.uint8([[orig_rgb]]), cv2.COLOR_RGB2HSV)[0][0]
     target_hsv = cv2.cvtColor(np.uint8([[target_rgb]]), cv2.COLOR_RGB2HSV)[0][0]

@@ -45,13 +45,13 @@ class object_trajectory:
 
     def masks_at_frame(self, frame_idx, frame):
 
-        values = self.boxs_at_frame(frame_idx)
+        boxes = self.boxs_at_frame(frame_idx)
 
         masks = []
-        for val in values:
+        for box in boxes:
 
-            if val != None:
-                mask = box_to_mask(frame, val[0], val[1], val[2], val[3])
+            if box != None:
+                mask = box_to_mask(frame, box)
                 masks.append(mask)
             else:
                 masks.append(None)
@@ -90,9 +90,9 @@ class wand_trajectory:
 
     def mask_at_frame(self, frame_idx, frame):
 
-        val = self.box_at_frame(frame_idx)
-        if val != None:
-            mask = box_to_mask(frame, val[0], val[1], val[2], val[3])
+        box = self.box_at_frame(frame_idx)
+        if box != None:
+            mask = box_to_mask(frame, box)
         else:
             mask = None
 

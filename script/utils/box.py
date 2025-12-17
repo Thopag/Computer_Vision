@@ -4,19 +4,30 @@ import cv2
 
 from script.CONFIG import ALPHA_CIOU
 
-def xyxy_to_cxcywh(state):
-    x1, y1, x2, y2 = state
+def xyxy_to_cxcywh(box_xy):
+    """
+    Convert the box from edge coordinates to a box defined by center, width, and height.
+    """
+    x1, y1, x2, y2 = box_xy
     w = x2 - x1
     h = y2 - y1
     cx = x1 + w/2
     cy = y1 + h/2
     return np.array([cx, cy, w, h], dtype=np.float32)
 
-def cxcywh_to_xyxy(state):
-    cx, cy, w, h = state
+def cxcywh_to_xyxy(box_cc):
+    """
+    Convert the box defined by center, width, and height to a box with edge coordinates.
+    """
+    cx, cy, w, h = box_cc
     return int(cx - w/2), int(cy - h/2), int(cx + w/2), int(cy + h/2)
 
+
+# Made By ChatGPT
 def ciou(bb1, bb2):
+    """
+    Compute the cIoU metric between two bounding boxes.
+    """
     x1, y1, x2, y2 = bb1
     xx1, yy1, xx2, yy2 = bb2
 
@@ -37,7 +48,7 @@ def ciou(bb1, bb2):
     union = area1 + area2 - inter + 1e-6
     iou = inter / union
 
-    # --- Center distance penalty ---
+    # --- Center distance penalty --- #
     cx1, cy1 = (x1 + x2)/2, (y1 + y2)/2
     cx2, cy2 = (xx1 + xx2)/2, (yy1 + yy2)/2
     center_dist_sq = (cx1 - cx2)**2 + (cy1 - cy2)**2
@@ -47,7 +58,7 @@ def ciou(bb1, bb2):
     enc_x2, enc_y2 = max(x2, xx2), max(y2, yy2)
     enc_diag_sq = (enc_x2 - enc_x1)**2 + (enc_y2 - enc_y1)**2 + 1e-6
 
-    # --- Aspect ratio penalty ---
+    # --- Aspect ratio penalty --- #
     v = (4 / (math.pi**2)) * (math.atan(w2/h2) - math.atan(w1/h1))**2
 
     if ALPHA_CIOU == None:
@@ -55,45 +66,58 @@ def ciou(bb1, bb2):
     else:
         alpha = ALPHA_CIOU
 
-    # --- CIoU score ---
+    # --- CIoU score --- #
     ciou_score = iou - (center_dist_sq / enc_diag_sq) - alpha * v
     return ciou_score
 
-def box_to_mask(frame, cx, cy, w, h):
-    H, W = frame.shape[:2]
+def box_to_mask(frame, box_cc):
+    """
+    Get the corresponding mask on the frame of the given box.
+    
+    Args:
+        frame: The frame to extract the mask
+        box_cc: The box in center, w, h format
 
-    x1 = int(cx - w/2)
-    y1 = int(cy - h/2)
-    x2 = int(cx + w/2)
-    y2 = int(cy + h/2)
+    Return:
+        The mask of the box
+    """
+    h_frame, w_frame = frame.shape[:2]
+
+    x1, y1, x2, y2 = cxcywh_to_xyxy(box_cc)
 
     # clamp
-    x1 = max(0, min(W-1, x1))
-    x2 = max(0, min(W-1, x2))
-    y1 = max(0, min(H-1, y1))
-    y2 = max(0, min(H-1, y2))
+    x1 = max(0, min(w_frame-1, x1))
+    x2 = max(0, min(w_frame-1, x2))
+    y1 = max(0, min(h_frame-1, y1))
+    y2 = max(0, min(h_frame-1, y2))
 
-    mask = np.zeros((H, W), dtype=np.uint8)
+    mask = np.zeros((h_frame, w_frame), dtype=np.uint8)
     mask[y1:y2, x1:x2] = 255
 
     return mask
 
-def draw_box(frame, box, color, label):
+def draw_box(frame, box_cc, color, label):
+    """
+    Draw the box with the specified color and label on the frame.
+    
+    Args:
+        frame: The frame on which to write.
+        box_cc: The box to write (in center, w, h format)
+        color: The color of the box
+        label: The label of the box
+    """
 
-    if box is None:
+    if box_cc is None:
         return
-    cx, cy, w, h = box
-    x1 = int(cx - w/2)
-    y1 = int(cy - h/2)
-    x2 = int(cx + w/2)
-    y2 = int(cy + h/2)
+    x1, y1, x2, y2 = cxcywh_to_xyxy(box_cc)
     cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
     cv2.putText(frame, label, (x1+5, y2+20),
                 cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
-        
+
     return
 
-# -- Unused function -- #
+# -- The 2 other metrics that were tested -- #
+# (Also made by chat GPT)
 
 def iou(bb1, bb2):
     x1,y1,x2,y2 = bb1

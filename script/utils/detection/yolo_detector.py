@@ -8,6 +8,10 @@ from ultralytics import YOLO
 model = YOLO(MODEL_PATH)
 
 class yolo_detector:
+    """
+    Class to use the YOLO model in a more convenient way.
+    Also keep in memory the last predictions.
+    """
 
     def __init__(self, blacklist = [], confidence_threshold = 0.0, control_list=[]):
 
@@ -33,6 +37,7 @@ class yolo_detector:
         # Convert image to RGB
         frame_rgb = cv2.cvtColor(frame_bgr, cv2.COLOR_BGR2RGB)
 
+        # Get result models
         results =  model(frame_rgb, verbose= False)[0]
         class_names = results.names
 
@@ -54,12 +59,14 @@ class yolo_detector:
             x1, y1, x2, y2 = map(int, box.xyxy[0])
             box_xy = (x1, y1, x2, y2)
             box_cc = xyxy_to_cxcywh(box_xy)
-            
+
+            # Check box size if in control list
             if label in self.control_list:
                 _, _ , w, h = box_cc
                 if w > MAX_W_OBJ or h > MAX_H_OBJ:
                     continue
-    
+
+            # Put in memory the detection
             self.confs.append(conf)
             self.labels.append(label)
             self.boxes_xy.append(box_xy)

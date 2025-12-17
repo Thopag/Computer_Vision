@@ -76,8 +76,9 @@ def place_mask_on_frame(mask_crop, frame_shape, cx, cy, w, h):
 # EFFECT FUNCTIONS
 # ============================================================================
 def apply_ball_color(frame, ball_box, count):
-    cx, cy, w, h = ball_box
-    mask = box_to_mask(frame, cx, cy, w, h)
+    """_summary_ :  Apply the ball changing color effect
+    """
+    mask = box_to_mask(frame, ball_box)
 
     if count == 1:  # grayscale
         g = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -136,12 +137,12 @@ def apply_sketch_effect(frame, cx, cy, w, h, frame_idx,
     # fade-in
     if in_start is not None and in_end is not None:
         if in_start <= frame_idx <= in_end:
-            alpha = (frame_idx - in_start) / (in_end - in_start)
+            alpha = (frame_idx - in_start) / (in_end - in_start + 1e-6)
 
     # fade-out
     if out_start is not None and out_end is not None:
         if out_start <= frame_idx <= out_end:
-            alpha = 1 - (frame_idx - out_start) / (out_end - out_start)
+            alpha = 1 - (frame_idx - out_start) / (out_end - out_start + 1e-6)
 
     alpha = float(np.clip(alpha, 0, 1))
     if alpha <= 0:
@@ -158,11 +159,7 @@ def trick2(cap, writer, nb_frame, frame_shift,
            object_path, interaction_path, wand_path,
            debug=True):
 
-    """_summary_ :
 
-    Returns:
-        _type_: _description_
-    """
     traj = object_trajectory(object_path)
     wand = wand_trajectory(wand_path)
 
@@ -220,10 +217,6 @@ def trick2(cap, writer, nb_frame, frame_shift,
 
     effect_messages = []
 
-    def print_progress(f):
-        if f % 50 == 0:
-            print(f"Trick 2 progress: {(frame_idx)/(nb_frame-frame_shift) *100:.2f} %", end="\r")
-
     def put_overlay(img):
         if not debug:
             return
@@ -233,12 +226,10 @@ def trick2(cap, writer, nb_frame, frame_shift,
                         cv2.FONT_HERSHEY_SIMPLEX, 0.85, (0,255,255), 2)
             y += 35
 
-    # ============================================================================
-    # MAIN LOOP
-    # ============================================================================
     for frame_idx in range(frame_shift, nb_frame+frame_shift):
 
-        print_progress(frame_idx)
+        if frame_idx % 50 == 0:
+            print(f"Trick 2 progress: {(frame_idx-frame_shift)/(nb_frame) *100:.2f} %", end="\r")
 
         ok, frame = cap.read()
         if not ok:
@@ -317,10 +308,6 @@ def trick2(cap, writer, nb_frame, frame_shift,
     return 1
 
 
-
-# ============================================================================
-# MAIN
-# ============================================================================
 def main():
 
     video_path       = IN_PATH
@@ -351,7 +338,7 @@ def main():
         cap, writer, N,
         object_path, interaction_path, wand_path,
         file=log,
-        debug=False         # CHANGE TO False for clean output
+        debug=False
     )
 
     log.close()
@@ -359,7 +346,6 @@ def main():
     writer.release()
 
     print("\nDONE! Saved to:", output_path)
-
 
 if __name__ == "__main__":
     main()

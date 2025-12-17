@@ -16,6 +16,7 @@ The goal of the project is to detect and track objects over time in video sequen
 The workflow is divided into two main stages:
 
 -  Preprocessing Stage
+
         During preprocessing:
         Multiple videos are analyzed ,Several .txt files are generated containing object positions over time
         Tracking data is refined using:
@@ -25,6 +26,7 @@ The workflow is divided into two main stages:
         These processed files are saved and reused later, avoiding real-time constraints.
         
 -  Offline Processing Stage
+
         The preprocessed data is then used offline to:        Accurately reconstruct object motion        Generate the final visual effects (“tricks”) in a controlled and precise manner
 
         files
@@ -35,3 +37,13 @@ The workflow is divided into two main stages:
         ├── object_tracking     # Stores object tracking data
         ├── wand_tracking       # Stores wand tracking data
         └── yolo_output         # Stores YOLO detection outputs
+
+# How to Run
+
+- Tuned the CONFIG file if needed
+
+- Run the preprocessing step
+ This generates all required videos and .txt files (tracking, interpolation, detections, etc.).
+
+- Run the main program
+The main script uses the generated files to produce the final output.

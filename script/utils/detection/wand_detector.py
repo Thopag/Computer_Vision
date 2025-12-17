@@ -7,22 +7,36 @@ from script.utils.mask_operation import extract_blobs
 def remove_objects(frame, box_list):
     """
     Paints object bounding boxes black (removes them).
-    So wand-detector sees a clean frame.
+    So wand-detector sees a frame without the object colors.
+    (like our red mushroom)
+
+    Args:
+        frame: The frame to clean
+        box_list: The box of the object to remove
+
+    Return:
+        The cleanned frame
     """
     if box_list is None:
         return frame
 
     clean = frame.copy()
-
     for obj_box in box_list:
 
         if obj_box:
+            _, _, w, h = obj_box
             x1, y1, x2, y2 = cxcywh_to_xyxy(obj_box)
+
+            # adaptative dilatation
+            x1, y1, x2, y2 = int(x1 - w*SCALE_FRACTION), int(y1 - h*SCALE_FRACTION), int(x2 + w*SCALE_FRACTION), int(y2 + h*SCALE_FRACTION)
             clean[y1:y2, x1:x2] = 0
 
     return clean
 
 class wand_detector:
+    """
+    Class to extract the blobs of a given frame
+    """
 
     def __init__(self, obj_trajs : object_trajectory):
 
@@ -46,7 +60,3 @@ class wand_detector:
             return False
 
         return True
-
-    def draw_detections(self, frame):
-
-        return

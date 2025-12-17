@@ -77,9 +77,7 @@ def grow_object_magic(frame, cx, cy, w, h,
     y1 = max(0, min(H-1, y1))
     y2 = max(0, min(H-1, y2))
 
-    # ----------------------------------------------------------
-    # 1. Extract contour mask inside bounding box
-    # ----------------------------------------------------------
+    # Extract contour mask inside bounding box
     contour_local = find_contour_from_bbox(frame, cx, cy, w, h)
 
     if contour_local is None:
@@ -92,9 +90,7 @@ def grow_object_magic(frame, cx, cy, w, h,
     if np.count_nonzero(mask) < 30:
         return frame
 
-    # ----------------------------------------------------------
-    # 2. Compute scale progress
-    # ----------------------------------------------------------
+    # Compute scale progress
     if last_touch == first_touch:
         progress = 1
     else:
@@ -103,9 +99,7 @@ def grow_object_magic(frame, cx, cy, w, h,
 
     scale = 1 + progress * (max_scale - 1)
 
-    # ----------------------------------------------------------
-    # 3. Extract object region using mask
-    # ----------------------------------------------------------
+    # Extract object region using mask
     ys, xs = np.where(mask > 0)
     y0, y1b = ys.min(), ys.max()
     x0, x1b = xs.min(), xs.max()
@@ -120,9 +114,7 @@ def grow_object_magic(frame, cx, cy, w, h,
     obj_big = cv2.resize(obj, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
     mask_big = cv2.resize(obj_mask, (new_w, new_h), interpolation=cv2.INTER_NEAREST)
 
-    # ----------------------------------------------------------
-    # 4. Anchor bottom to table
-    # ----------------------------------------------------------
+    # Anchor bottom to table
     bottom_y = y1b  # original bottom pixel
 
     Y1 = bottom_y
@@ -140,9 +132,8 @@ def grow_object_magic(frame, cx, cy, w, h,
     ox1 = ox0 + (X1c - X0c)
     oy1 = oy0 + (Y1c - Y0c)
 
-    # ----------------------------------------------------------
-    # 5. Feather alpha mask for smooth growth
-    # ----------------------------------------------------------
+
+    # Feather alpha mask for smooth growth
     alpha = (mask_big > 0).astype(np.float32)
     alpha = cv2.GaussianBlur(alpha, (feather, feather), 0)
     alpha = np.clip(alpha, 0, 1)
@@ -153,16 +144,13 @@ def grow_object_magic(frame, cx, cy, w, h,
     if blur_amount > 0:
         obj_region = cv2.GaussianBlur(obj_region, (blur_amount, blur_amount), 0)
 
-    # ----------------------------------------------------------
-    # 6. Composite
-    # ----------------------------------------------------------
+    # Composite
     frame_out = frame.copy()
     roi = frame_out[Y0c:Y1c, X0c:X1c]
     alpha_exp = alpha_crop[...,None]
 
     roi = (roi*(1-alpha_exp) + obj_region*alpha_exp).astype(np.uint8)
 
-    #  ***THE CORRECT LINE*** 
     frame_out[Y0c:Y1c, X0c:X1c] = roi
 
     return frame_out
@@ -174,7 +162,7 @@ def fade_object_magic(frame, cx, cy, w, h,
 
     H, W = frame.shape[:2]
 
-    # 1. Extract contour mask
+    # Extract contour mask
     mask_local = find_contour_from_bbox(frame, cx, cy, w, h)
     if mask_local is None:
         return frame
@@ -192,18 +180,18 @@ def fade_object_magic(frame, cx, cy, w, h,
     if np.count_nonzero(mask) < 20:
         return frame
 
-    # 2. Compute fade progress
+    # Compute fade progress
     if fade_end == fade_start:
         progress = 1
     else:
         progress = (frame_idx - fade_start) / (fade_end - fade_start)
         progress = np.clip(progress, 0, 1)
 
-    # fade_in = True  → alpha goes from 0 → 1
-    # fade_in = False → alpha goes from 1 → 0
+    # fade_in = True  -> alpha goes from 0 -> 1
+    # fade_in = False -> alpha goes from 1 -> 0
     alpha = progress if fade_in else (1 - progress)
 
-    # 3. Object extraction
+    # Object extraction
     ys, xs = np.where(mask > 0)
     y0, y1b = ys.min(), ys.max()
     x0, x1b = xs.min(), xs.max()

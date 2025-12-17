@@ -45,13 +45,36 @@ OBJ_TRACKER_END_FRAME = 3120 # (104s)
 OBJ_BALL_TRACKER_START_FRAME = 3270 # (109s)
 OBJ_BALL_TRACKER_END_FRAME = None
 
-WAND_2_TRACKER_START_FRAME = 2400 # (80s)
+WAND_2_TRACKER_START_FRAME = 2310 # (77s)
 WAND_2_TRACKER_END_FRAME = 3120 # (104s)
 
 WAND_3_TRACKER_START_FRAME = 3750 # (125s)
 WAND_3_TRACKER_END_FRAME = 3930 # (131s)
 
 # -- Kalman filter -- #
+
+KALMAN_OBJ_TIMER = 5
+KF_OBJ_PROCESS_NOISE = 0.001
+KF_OBJ_MEASUREMENT_NOISE = 0.05
+
+#-- trick 3 -----------------------------------------------
+
+# WAND_MAX_PRED_JUMP = 29
+# KALMAN_WAND_TIMER = 19
+# KF_WAND_PROCESS_NOISE = 1.9
+# KF_WAND_MEASUREMENT_NOISE = 0.7
+
+# # -- red -- #
+
+# LOWER_RED1 = np.array([170, 100, 85])
+# UPPER_RED1 = np.array([180, 200, 255])
+
+# LOWER_RED2 = np.array([170, 100, 85])
+# UPPER_RED2 = np.array([189, 200, 255])
+
+# RED_MEDIAN_BLUR = 5
+
+#-- trick 2 -----------------------------------------------
 
 WAND_MAX_PRED_JUMP = 29
 KALMAN_OBJ_TIMER = 5
@@ -72,6 +95,8 @@ UPPER_RED2 = np.array([180, 255, 255])
 
 RED_MEDIAN_BLUR = 5
 
+#--------------------------------------------------------
+
 # -- green -- #
 
 GREEN = [0,255,0]
@@ -81,7 +106,7 @@ TUNNING_GREEN = 35
 
 # -- remove object -- #
 
-SCALE_FRACTION = 0.01
+SCALE_FRACTION = 0.025
 
 # -- blob -- #
 

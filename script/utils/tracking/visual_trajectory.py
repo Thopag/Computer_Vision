@@ -4,17 +4,18 @@ from script.utils.tracking.trajectory import object_trajectory, wand_trajectory
 from script.utils.box import draw_box,box_to_mask
 from script.utils.mask_operation import roi
 from script.CONFIG import *
-# ============================================================
-# VISUALIZER
-# ============================================================
-def visualizer_object(object_path, output_video):
 
-    # Load logs
+def visualizer_object(object_path, output_video):
+    """
+    Make a video of the object trajectory .txt
+    
+    Args:
+        object_path: Trajectory ?txt
+        output_video: Video output
+    """
+
     obj_trajs = object_trajectory(object_path)
 
-    print(" Loaded logs.")
-
-    # Open video
     cap = cv2.VideoCapture(IN_PATH)
     if not cap.isOpened():
         print(" ERROR: Cannot open input video")
@@ -30,8 +31,6 @@ def visualizer_object(object_path, output_video):
         cv2.VideoWriter_fourcc(*"mp4v"),
         fps, (W, H)
     )
-
-    print(" Processing…")
 
     for frame_idx in range(N):
 
@@ -50,22 +49,22 @@ def visualizer_object(object_path, output_video):
 
         writer.write(output)
 
-    # ========================= END LOOP =========================
-
     cap.release()
     writer.release()
 
-    print("\n VISUALIZER DONE")
-    print(" video :", output_video)
+    print("Video :", output_video)
 
 def visualizer_wand(wand_path, output_video):
+    """
+    Make a video of the wand trajectory .txt
+    
+    Args:
+        wand_path: Trajectory ?txt
+        output_video: Video output
+    """
 
-    # Load logs
     wand_traj = wand_trajectory(wand_path)
 
-    print(" Loaded logs.")
-
-    # Open video
     cap = cv2.VideoCapture(IN_PATH)
     if not cap.isOpened():
         print(" ERROR: Cannot open input video")
@@ -82,8 +81,6 @@ def visualizer_wand(wand_path, output_video):
         fps, (W, H)
     )
 
-    print(" Processing…")
-
     for frame_idx in range(N):
 
         ok, frame = cap.read()
@@ -99,17 +96,12 @@ def visualizer_wand(wand_path, output_video):
 
         writer.write(output)
 
-    # ========================= END LOOP =========================
-
     cap.release()
     writer.release()
 
-    print("\n VISUALIZER DONE")
-    print("→ video :", output_video)
+    print("video :", output_video)
 
-# ============================================================
-# VISUALIZER Both + Generate interaction files
-# ============================================================
+
 def visualizer_combined(
     wand_path,
     object_path,
@@ -117,23 +109,24 @@ def visualizer_combined(
     output_all_objects,
     output_interactions,
 ):
+    """
+    Visual both wand and object 
+    and create the interaction files for trick 2
+    
+    Args:
+        wand_path: Trajectory .txt of wand
+        object_path: Trajectory .txt of the objects
+        output_video: Video of the combine trajectories
+        output_all_objects: Trajectory .txt of wand + object
+        output_interactions: Interation .txt used for trick 2
+    """
 
-    # ---------------------------------------------------------------
-    # LOAD TRAJECTORIES
-    # ---------------------------------------------------------------
     wand_traj = wand_trajectory(wand_path)
-    obj_trajs = object_trajectory(object_path)   # need exactly 3 objects
-
-    print(" Loaded logs.")
-    print(f"  wand entries:   {len(wand_traj.wand_dict['frame'])}")
-    print(f"  objects tracked: {obj_trajs.nbr_object}")
+    obj_trajs = object_trajectory(object_path) 
 
     if obj_trajs.nbr_object != 3:
         raise ValueError("Object file trajectory have not 3 objects")
 
-    # ---------------------------------------------------------------
-    # OPEN VIDEO
-    # ---------------------------------------------------------------
     cap = cv2.VideoCapture(IN_PATH)
     if not cap.isOpened():
         print(" ERROR: cannot open video")
@@ -156,11 +149,6 @@ def visualizer_combined(
     inter_file = open(output_interactions, "w")
     inter_file.write("interaction log\n")
 
-    print(" Processing…")
-
-    # ---------------------------------------------------------------
-    # MAIN LOOP
-    # ---------------------------------------------------------------
     for frame_idx in range(N):
 
         ok, frame = cap.read()
@@ -171,9 +159,6 @@ def visualizer_combined(
 
         output = frame.copy()
 
-        # ===========================================================
-        # WAND DATA + EXPANDED MASK
-        # ===========================================================
         wand_box = wand_traj.box_at_frame(frame_idx)
         wand_mask_expanded = np.zeros((H, W), dtype=np.uint8)
 
@@ -184,7 +169,7 @@ def visualizer_combined(
             allobj_file.write(f"{frame_idx},-1,{cx},{cy},{w},{h}\n")
 
             # Wand mask
-            wand_mask = box_to_mask(frame, cx, cy, w, h)
+            wand_mask = box_to_mask(frame, wand_box)
 
             # Expand wand mask using CONFIG constants
             wand_mask_expanded = roi(wand_mask, WAND_ITER, WAND_DILATE)
@@ -192,9 +177,6 @@ def visualizer_combined(
             # Draw wand rectangle in RED
             draw_box(output, wand_box, (0, 0, 255), "WAND")
 
-        # ===========================================================
-        # OBJECT DATA + EXPANDED MASKS
-        # ===========================================================
         obj_boxes = obj_trajs.boxs_at_frame(frame_idx)
         obj_masks = obj_trajs.masks_at_frame(frame_idx, frame)
 
@@ -218,9 +200,6 @@ def visualizer_combined(
             # Draw object rectangle in GREEN
             draw_box(output, box, (0, 255, 0), f"OBJ {obj_id}")
 
-        # ===========================================================
-        # INTERACTION DETECTION
-        # ===========================================================
         if wand_box is not None:
             for obj_id, mask in enumerate(expanded_obj_masks):
                 if mask is None:
@@ -234,14 +213,8 @@ def visualizer_combined(
                         f"{frame_idx}   wand touches object {obj_id}\n"
                     )
 
-        # ===========================================================
-        # WRITE FRAME
-        # ===========================================================
         writer.write(output)
 
-    # ---------------------------------------------------------------
-    # CLEANUP
-    # ---------------------------------------------------------------
     cap.release()
     writer.release()
     allobj_file.close()
@@ -264,8 +237,8 @@ if __name__ == "__main__":
     interaction_video = f"files/object_&_wand/{FILE_NAME}_interaction_object_&_wand.mp4"
     output_all_objects = f"files/object_&_wand/{FILE_NAME}_all_object_&_wand.txt"
 
-    #visualizer_combined(interpolation_wand_2_txt, interpolation_obj_txt, 
-    #                        interaction_video, output_all_objects, interaction_txt)
+    visualizer_combined(interpolation_wand_2_txt, interpolation_obj_txt, 
+                            interaction_video, output_all_objects, interaction_txt)
     
     interpolation_static_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj_static.txt"
     visual_obj_static = f"files/interpolation/{FILE_NAME}_visual_{N_OBJECT}_obj_static.mp4"

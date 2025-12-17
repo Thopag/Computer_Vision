@@ -8,9 +8,6 @@ from script.tricks.trick3 import trick3
 from .utils.video_splitting import get_number_of_frames
 from .CONFIG import *
 
-#----------------------------------------------
-os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
-
 def main() :
     start_main = time.time()
     cap = cv2.VideoCapture(IN_PATH)
@@ -25,7 +22,6 @@ def main() :
     fourcc = cv2.VideoWriter_fourcc(*"mp4v") 
     writer = cv2.VideoWriter(OUT_PATH, fourcc, fps, (w, h))
 
-    start = time.time()
     nbr_trick1, nbr_trick2, nbr_trick3 = get_number_of_frames(cap, JSON_PATH, FIXED)
 
     interpolation_obj_txt = f"files/interpolation/{FILE_NAME}_{N_OBJECT}_obj.txt"
@@ -35,13 +31,11 @@ def main() :
     interpolation_ball_txt = f"files/interpolation/{FILE_NAME}_ball.txt"
     interpolation_wand_3_txt = f"files/interpolation/{FILE_NAME}_wand_trick3.txt"
 
-    debug = True
-
     #------------Trick1------------#
     print("-------- 1 --------")
     start_1 = time.time()
 
-    trick1(writer, cap, nbr_trick1, interpolation_obj_txt, debug)
+    trick1(writer, cap, nbr_trick1, interpolation_obj_txt, DEBUG)
 
     end_1 = time.time()
     #------------Trick2------------#
@@ -49,7 +43,7 @@ def main() :
     start_2 = time.time()
     
     trick2(cap, writer, nbr_trick2, nbr_trick1,
-            interpolation_obj_txt, interaction_txt, interpolation_wand_2_txt, debug)
+            interpolation_obj_txt, interaction_txt, interpolation_wand_2_txt, DEBUG)
 
     end_2 = time.time()
     #------------Trick3------------#
@@ -57,7 +51,7 @@ def main() :
     start_3 = time.time()
 
     trick3(cap, writer, nbr_trick3, nbr_trick1+nbr_trick2,
-            interpolation_ball_txt, interpolation_wand_3_txt, debug=False)
+            interpolation_ball_txt, interpolation_wand_3_txt, DEBUG)
 
     end_3 = time.time()
     #------------Finish------------#
