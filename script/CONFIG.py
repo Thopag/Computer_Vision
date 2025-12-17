@@ -2,7 +2,7 @@ import numpy as np
 
 grp = 11
 
-FIXED = False
+FIXED = True
 
 if FIXED:
     t = "fixed"
@@ -20,9 +20,8 @@ MODEL_PATH = "model/yolov8n.pt"
 READ_EVERY_X_FRAME = 1
 CONF_TRESHOLD = 0.0
 
-BLACKLIST =['person', 'skateboard', 'laptop', 'cup', 'chair', 'dining table', 'microwave', 'umbrella', 
-    'kite', 'cat', 'traffic light', 'book', 'cell phone', 'keyboard', 'scissors', 'frisbee', 'suitcase', 'dog', 'tv', "handbag"]
-
+BLACKLIST = ['person', 'dining table', 'sink', 'tie', 'cup', 'remote', 'skateboard', 
+        'orange', 'handbag', 'cake', 'bowl', 'frisbee', 'umbrella', 'scissors', 'vase', 'book' , 'tennis racket']
 CONTROL_LIST = []
 
 # -------------- TRACKER -------------- #
@@ -31,17 +30,14 @@ N_OBJECT = 3
 # 0 : ball || 1 : bottle || 2 : obj3
 
 # -- Timing -- #
-OBJ_TRACKER_START_FRAME = 420 # (14s)
-OBJ_TRACKER_END_FRAME = 2160 # (72s)
+OBJ_TRACKER_START_FRAME = 570 # (19s)
+OBJ_TRACKER_END_FRAME = 3120 # (104s)
 
-OBJ_BALL_TRACKER_START_FRAME = 2340 # (78s)
+OBJ_BALL_TRACKER_START_FRAME = 3270 # (109s)
 OBJ_BALL_TRACKER_END_FRAME = None
 
-WAND_2_TRACKER_START_FRAME = 1500 # (50s)
-WAND_2_TRACKER_END_FRAME = 2160 # (72s)
-
-WAND_3_TRACKER_START_FRAME = 2580 # (86s)
-WAND_3_TRACKER_END_FRAME = None
+WAND_2_TRACKER_START_FRAME = 2310 # (77s)
+WAND_2_TRACKER_END_FRAME = 3120 # (104s)
 
 
 # -- prediction -- #
@@ -50,24 +46,24 @@ MAX_H_OBJ = 175
 
 ALPHA_CIOU = None
 
-WAND_MAX_PRED_JUMP = 10
+
 
 MIN_W = 10
 MIN_H = 10
 
 # -- Kalman filter -- #
 
-KALMAN_OBJ_TIMER = 15
+
 KF_OBJ_PROCESS_NOISE = 0.001
 KF_OBJ_MEASUREMENT_NOISE = 0.05
 
-KALMAN_WAND_TIMER = 10
-KF_WAND_PROCESS_NOISE = 0.01
-KF_WAND_MEASUREMENT_NOISE = 0.05
+
 
 # -- interpolation -- #
 
 INTERPOLATION_TYPE = 'linear'
+#INTERPOLATION_TYPE_trick3 = 'cubic'
+
 
 # -- blob -- #
 
@@ -87,13 +83,41 @@ TUNNING_GREEN = 35
 
 # -- red -- #
 
-LOWER_RED1 = np.array([170, 90, 50])
+KALMAN_OBJ_TIMER = 5
+KF_OBJ_PROCESS_NOISE = 0.001
+KF_OBJ_MEASUREMENT_NOISE = 0.05
+ #------wand------------------
+KALMAN_WAND_TIMER = 10
+KF_WAND_PROCESS_NOISE = 1.0
+KF_WAND_MEASUREMENT_NOISE = 0.01
+WAND_MAX_PRED_JUMP = 29
+KALMAN_WAND_TIMER = 20
+
+# -- red -- #  WAND
+LOWER_RED1 = np.array([160, 90, 40])
 UPPER_RED1 = np.array([180, 255, 255])
 
-LOWER_RED2 = np.array([170, 90, 50])
+LOWER_RED2 = np.array([170, 90, 40])
 UPPER_RED2 = np.array([180, 255, 255])
 
 RED_MEDIAN_BLUR = 5
+
+WAND_3_TRACKER_START_FRAME = 3600 # (124s)
+WAND_3_TRACKER_END_FRAME = None
+
+
+
+# Pixel at (472,620)
+#   BGR = (97, 94, 168)
+#   HSV = (179, 112, 168)
+# ------------------------------
+# Pixel at (471,625)
+#   BGR = (24, 20, 90)
+#   HSV = (178, 198, 90)
+# ------------------------------    
+# Pixel at (474,617)
+#   BGR = (98, 96, 161)
+#   HSV = (179, 103, 161)
 
 # -------------- TRICK 1 -------------- #
 

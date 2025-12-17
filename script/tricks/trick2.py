@@ -76,8 +76,6 @@ def place_mask_on_frame(mask_crop, frame_shape, cx, cy, w, h):
 # EFFECT FUNCTIONS
 # ============================================================================
 def apply_ball_color(frame, ball_box, count):
-    """_summary_ :  Apply the ball changing color effect
-    """
     cx, cy, w, h = ball_box
     mask = box_to_mask(frame, cx, cy, w, h)
 
@@ -160,7 +158,11 @@ def trick2(cap, writer, nb_frame, frame_shift,
            object_path, interaction_path, wand_path,
            debug=True):
 
+    """_summary_ :
 
+    Returns:
+        _type_: _description_
+    """
     traj = object_trajectory(object_path)
     wand = wand_trajectory(wand_path)
 

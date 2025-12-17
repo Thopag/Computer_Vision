@@ -23,20 +23,20 @@ Pixel at (471,143)  FRONT
 -----------------------------
 
 
- ------wand------------------
-KALMAN_WAND_TIMER = 10
-WAND_MAX_PRED_JUMP = 10
-KF_WAND_PROCESS_NOISE = 0.01
-KF_WAND_MEASUREMENT_NOISE = 0.05
+kind_interpolation= 'cubic'
+KALMAN_OBJ_TIMER = 5
+WAND_3_TRACKER_START_FRAME = 3600 # (124s)
+WAND_3_TRACKER_END_FRAME = None
 
+WAND_MAX_PRED_JUMP = 29
+KALMAN_WAND_TIMER = 19
+KF_WAND_PROCESS_NOISE = 1.9
+KF_WAND_MEASUREMENT_NOISE = 0.7
 
-LOWER_RED1 = np.array([170, 90, 50])
-UPPER_RED1 = np.array([180, 255, 255])
+LOWER_RED1 = np.array([170, 100, 85])
+UPPER_RED1 = np.array([180, 200, 255])
 
-LOWER_RED2 = np.array([170, 90, 50])
-UPPER_RED2 = np.array([180, 255, 255])
-
-RED_MEDIAN_BLUR = 5
-
+LOWER_RED2 = np.array([170, 100, 85])
+UPPER_RED2 = np.array([189, 200, 255])
 
 RED_MEDIAN_BLUR = 5
